@@ -1,30 +1,13 @@
 #include <glad.h>
 #include <GLFW\glfw3.h>
 #include <iostream>
+#include "shader.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
-const char* vertexShaderSource = "#version 330 core\n" //Simple GLSL Vertex shader program
-	"layout (location = 0) in vec3 aPos;\n"
-	"layout (location = 1) in vec3 aColor;\n"
-
-	"out vec3 ourColor;\n"
-	"void main()\n"
-	"{\n"
-	"	gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-	"	ourColor = aColor;\n" //what color the triangle will be
-	"}\0";
-
-const char* fragmentShaderSource = "#version 330 core\n" //Simple C Fragment Shader Program
-	"out vec4 FragColor;\n"
-	"in vec3 ourColor;\n"
-	"void main()\n"
-	"{\n"
-	"	FragColor =	vec4(ourColor, 1.0);\n" //right now this is a constant color
-	"}\n\0";
 
 
 int main() {
@@ -49,50 +32,7 @@ int main() {
 		return -1;
 	}
 
-	unsigned int vertexShader; //object for vertex data (like position)
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL); //compiles the C program to our vertex shader object
-	glCompileShader(vertexShader);
-
-	//checks to see if our vertex shader compiled good
-	int success;
-	char infoLog[512];
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-
-
-	unsigned int fragmentShader; //object that fills in triangle
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL); //compiles the C program to our fragment shader object
-	glCompileShader(fragmentShader);
-
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-
-
-	unsigned int shaderProgram; //object that links the shaders, we won't need them afterwards
-	shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if (!success)
-	{
-		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	Shader ourShader("shader.vs", "shader.fs");
 
 
 	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT); //first two parameters set the bottom left corner of the screen's coordinates
@@ -131,11 +71,13 @@ int main() {
 	glEnableVertexAttribArray(1);
 
 
-	glUseProgram(shaderProgram);
+	//glUseProgram(shaderProgram);
 
 
 	while (!glfwWindowShouldClose(window))//glfwWindowShouldClose checks if it's been instructed to close
 	{
+		ourShader.use();
+		ourShader.setFloat("someUniform", 1.0f);
 		processInput(window); //checks for inputs
 
 		glClearColor(0.08f, 0.08f, 0.1f, 1.0f);

@@ -160,6 +160,10 @@
     <ClInclude Include="..\..\..\..\Documents\OpenGL\Include\glad.h" />
     <ClInclude Include="shader.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="shader.vs" />
+    <Text Include="shader.fs" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
