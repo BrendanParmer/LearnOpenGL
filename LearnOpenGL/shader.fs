@@ -7,5 +7,5 @@
 
 	void main()
 	{
-		FragColor =	texture(ourTexture, ourTex); //right now this is a constant color
+		FragColor =	texture(ourTexture, ourTex);
 	};
