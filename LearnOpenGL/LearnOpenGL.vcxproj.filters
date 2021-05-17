@@ -5,7 +5,13 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="GLAD">
+    <Filter Include="Textures">
+      <UniqueIdentifier>{a03e7e2e-f289-4547-87b5-849a59a6f819}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External">
+      <UniqueIdentifier>{6be56ec5-248d-42d3-991c-45c372a04f10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\GLAD">
       <UniqueIdentifier>{a361c402-db91-46f6-bbf8-d722dde98614}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -14,15 +20,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\Documents\OpenGL\Include\src\glad.c">
-      <Filter>GLAD</Filter>
+      <Filter>External\GLAD</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Documents\OpenGL\Include\glad.h">
-      <Filter>GLAD</Filter>
+      <Filter>External\GLAD</Filter>
     </ClInclude>
     <ClInclude Include="shader.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\stb_image.h">
+      <Filter>External</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -32,5 +41,10 @@
     <Text Include="shader.fs">
       <Filter>Source Files</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\Documents\Blender\Image Textures\duck_of_doom.png">
+      <Filter>Textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>

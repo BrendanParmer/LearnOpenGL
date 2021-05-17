@@ -1,7 +1,11 @@
 #version 330 core //Simple C Fragment Shader Program
 	out vec4 FragColor;
 	in vec3 ourColor;
+	in vec2 ourTex;
+
+	uniform sampler2D ourTexture;
+
 	void main()
 	{
-		FragColor =	vec4(ourColor, 1.0); //right now this is a constant color
+		FragColor =	texture(ourTexture, ourTex); //right now this is a constant color
 	};
