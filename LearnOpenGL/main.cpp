@@ -11,7 +11,7 @@ void processInput(GLFWwindow* window);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-float mixValue = 0.0f;
+float mixValue = 0.5f;
 
 int main() {
 	glfwInit(); //configures GLFW for OpenGL 3.3
@@ -135,8 +135,6 @@ int main() {
 	glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
 	while (!glfwWindowShouldClose(window))//glfwWindowShouldClose checks if it's been instructed to close
 	{
-		ourShader.use();
-		ourShader.setFloat("someUniform", 1.0f);
 		processInput(window); //checks for inputs
 
 		glClearColor(0.08f, 0.08f, 0.1f, 1.0f);
@@ -153,8 +151,8 @@ int main() {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 
-		ourShader.setFloat("value", mixValue);
 		ourShader.use();
+		ourShader.setFloat("mixValue", mixValue);
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
@@ -181,13 +179,13 @@ void processInput(GLFWwindow* window)
 	}
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
-		mixValue += 0.1;
+		mixValue += 0.01;
 		if (mixValue >= 1.0f)
 			mixValue = 1.0f;
 	}
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
-		mixValue -= 0.1f; 
+		mixValue -= 0.01f; 
 		if (mixValue <= 0.0f)
 			mixValue = 0.0f;
 	}
