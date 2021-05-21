@@ -28,7 +28,7 @@ float deltaTime = 0.0f; //time between last and current frames
 float lastFrame = 0.0f;
 
 //camera stuff
-Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));
+Camera camera(glm::vec3(5.0f, 5.0f, 2.5f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -46,6 +46,7 @@ int main() {
 		glfwTerminate();
 		return -1; //main function should return 0 if successfull
 	}
+
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetScrollCallback(window, scroll_callback);
@@ -61,21 +62,7 @@ int main() {
 
 	Shader ourShader("shader.vs", "shader.fs");
 
-
-
 	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT); //first two parameters set the bottom left corner of the screen's coordinates
-
-	//float vertices[] = {
-	//	// positions          // colors           // texture coords
-	//	 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
-	//	 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
-	//	-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
-	//	-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
-	//};
-	//unsigned int indices[] = {
-	//	0, 1, 3,
-	//	1, 2, 3
-	//};
 
 	//c u b e
 	float cube[] = {
@@ -179,6 +166,41 @@ int main() {
 	}
 	stbi_image_free(data);
 
+	float endpoint = 1000.0f;
+	float axes[]{
+		//vertices			//colors
+		endpoint, 0, 0,		1.0f, 0, 0,
+		0, 0, 0,			1.0f, 0, 0,
+		-endpoint, 0, 0,	0.5f, 0, 0,
+		0, 0, 0,			0.5f, 0, 0,
+		0, endpoint, 0,		0, 1.0f, 0,
+		0, 0, 0,			0, 1.0f, 0,
+		0, -endpoint, 0,	0, 0.25f, 0,
+		0, 0, 0,			0, 0.25f, 0,
+		0, 0, endpoint,		0, 0, 1.0f,
+		0, 0, 0,			0, 0, 1.0f,
+		0, 0, -endpoint,	0, 0, 0.25f,
+		0, 0, 0,			0, 0, 0.25f
+	};
+	unsigned int axesVBO, axesVAO, axesEBO;
+	glGenVertexArrays(1, &axesVAO);
+	glGenBuffers(1, &axesVBO);
+	glGenBuffers(1, &axesEBO);
+	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+	glBindVertexArray(axesVAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, axesVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(axes), axes, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, axesEBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axes), axes, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
+	glEnableVertexAttribArray(1);
+
 	//enables us to use alpha channel goodness
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -213,28 +235,33 @@ int main() {
 		glClearColor(0.08f, 0.08f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clears the color buffer and resets it to the above value
 
-		/*float timeValue = glfwGetTime();
-		float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-		glUseProgram(shaderProgram);
-		glUniform4f(vertexColorLocation, greenValue, greenValue, 0.0f, 1.0f);*/
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture1);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, texture1);
 
 		ourShader.use();
 		ourShader.setFloat("mixValue", mixValue);
+		ourShader.setInt("thing", 0);
 
-		//transformation stuff
-		/*glm::mat4 trans = glm::mat4(1.0f);
-		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
-		trans = glm::scale(trans, glm::vec3((float)(sin(glfwGetTime())/2.0+0.5), (float)(cos(2*glfwGetTime()) / 2.0 + 0.5), 1.0));*/
+		glBindVertexArray(VAO);
+		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		for (unsigned int i = 0; i < 10; i++)
+		{
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePos[i]);
+			float angle = 1.1f * i;
+			model = glm::rotate(model, (float)glfwGetTime() + angle, glm::vec3(0.5f, 1.0f, 0.0f));				
+			ourShader.setMat4("model", model);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 
-		//ourShader.setMat4("transform", trans);
-
-		//camera setup
-
-
+		ourShader.setInt("thing", 1);
+		glm::mat4 model = glm::mat4(1.0f);
+		ourShader.setMat4("model", model);
+		glBindVertexArray(axesVAO);
+		glLineWidth(3.3f);
+		glDrawArrays(GL_LINES, 0, 12);
+		glLineWidth(1.0f);
 		//Vertices -> screen 3D goodness
 		glm::mat4 projection = glm::perspective(camera.zoom, (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		ourShader.setMat4("projection", projection);
@@ -242,26 +269,16 @@ int main() {
 		glm::mat4 view = camera.getViewMatrix();
 		ourShader.setMat4("view", view);
 
-		glBindVertexArray(VAO);
-
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		for (unsigned int i = 0; i < 10; i++) 
-		{
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePos[i]);
-			float angle = 1.1f * i;
-			model = glm::rotate(model, (float)glfwGetTime() + angle, glm::vec3(0.5f, 1.0f, 0.0f));
-			ourShader.setMat4("model", model);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
-
 		glfwSwapBuffers(window); //swaps the color buffer (kinda reloads the screen)
 		glfwPollEvents(); //checks if any events are triggered
 	}
 
 	glDeleteVertexArrays(1, &VAO);
+	glDeleteVertexArrays(1, &axesVAO);
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
+	glDeleteBuffers(1, &axesVBO);
+	glDeleteBuffers(1, &axesEBO);
 
 	glfwTerminate(); //cleans up resources and stuff properly
 	return 0;
@@ -300,31 +317,11 @@ void processInput(GLFWwindow* window)
 		camera.processKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 		camera.processKeyboard(RIGHT, deltaTime);
-
-
-	//if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-	//{
-	//	//camUp.y += camSpeed;
-	//}
-	//if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-	//{
-	//	//camUp.y -= camSpeed;
-	//}
 }
 void scroll_callback(GLFWwindow*, double xoffset, double yoffset)
 {
 	camera.processMouseScroll(yoffset);
 }
-/*void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
-{
-	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) 
-	{
-		
-	}
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) 
-	{
-	}
-}*/
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) 
 {
 	if (firstMouse)
