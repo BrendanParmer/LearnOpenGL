@@ -14,11 +14,11 @@ enum Camera_Movement {
 	RIGHT
 };
 
-const float YAW = 0.0f;
-const float PITCH = 0.0f;
-const float SPEED = 5.0f;
+const float YAW			= 0.0f;
+const float PITCH		= 0.0f;
+const float SPEED		= 5.0f;
 const float SENSITIVITY = 0.07f;
-const float ZOOM = 100.0f;
+const float ZOOM		= 100.0f;
 
 class Camera
 {
@@ -89,7 +89,7 @@ public:
 	}
 	void processMouseScroll(float yoffset)
 	{
-		zoom += yoffset / 10.0f;
+		zoom += yoffset/10.0f;
 	}
 private:
 	void updateCameraVectors()
@@ -101,7 +101,7 @@ private:
 		front = glm::normalize(direction);
 
 		right = glm::normalize(glm::cross(worldUp, front));
-		up = glm::normalize(glm::cross(right, front));
+		up	  = glm::normalize(glm::cross(right, front));
 	}
 };
 

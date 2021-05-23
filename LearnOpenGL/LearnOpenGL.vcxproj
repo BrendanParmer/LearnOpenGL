@@ -164,7 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader.vs" />
-    <Text Include="shader.fs" />
+    <Text Include="cube.fs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\Documents\Blender\Image Textures\duck_of_doom.png" />

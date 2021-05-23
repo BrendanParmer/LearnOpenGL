@@ -14,6 +14,9 @@
     <Filter Include="External\GLAD">
       <UniqueIdentifier>{a361c402-db91-46f6-bbf8-d722dde98614}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\shaders">
+      <UniqueIdentifier>{9540506f-50bd-44de-8f60-005cfadf1a9f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -39,10 +42,10 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader.vs">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\shaders</Filter>
     </Text>
-    <Text Include="shader.fs">
-      <Filter>Source Files</Filter>
+    <Text Include="cube.fs">
+      <Filter>Source Files\shaders</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>
