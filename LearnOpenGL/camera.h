@@ -14,7 +14,7 @@ enum Camera_Movement {
 	RIGHT
 };
 
-const float YAW			= 0.0f;
+const float YAW			= -90.0f;
 const float PITCH		= 0.0f;
 const float SPEED		= 5.0f;
 const float SENSITIVITY = 0.07f;
@@ -36,18 +36,18 @@ public:
 	float mouseSensitivity;
 	float zoom;
 
-	Camera(glm::vec3 setPosition = glm::vec3(10.0f, 10.0f, 10.0f),
-		glm::vec3 setWorldUp = glm::vec3(0.0f, 0.0f, 1.0f),
+	Camera(glm::vec3 setPosition = glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3 setUp = glm::vec3(0.0f, 1.0f, 0.0f),
 		float setYaw = YAW,
 		float setPitch = PITCH)
 		:
-		front(glm::vec3(-1.0f, 0.0f, 0.0f)),
+		front(glm::vec3(0.0f, 0.0f, -1.0f)),
 		movementSpeed(SPEED),
 		mouseSensitivity(SENSITIVITY),
 		zoom(ZOOM)
 	{
 		position = setPosition;
-		worldUp = setWorldUp;
+		worldUp = setUp;
 		yaw = setYaw;
 		pitch = setPitch;
 	}
@@ -72,8 +72,8 @@ public:
 		xoffset *= mouseSensitivity;
 		yoffset *= mouseSensitivity;
 
-		yaw += xoffset;
-		pitch -= yoffset;
+		yaw -= xoffset;
+		pitch += yoffset;
 
 		// make sure that when pitch is out of bounds, screen doesn't get flipped
 		if (constrainPitch)
@@ -89,18 +89,18 @@ public:
 	}
 	void processMouseScroll(float yoffset)
 	{
-		zoom += yoffset/10.0f;
+		zoom -= yoffset/10.0f;
 	}
 private:
 	void updateCameraVectors()
 	{
-		glm::vec3 direction;
-		direction.x = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-		direction.y = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-		direction.z = sin(glm::radians(pitch));
-		front = glm::normalize(direction);
+		glm::vec3 frontTemp;
+		frontTemp.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+		frontTemp.y = sin(glm::radians(pitch));
+		frontTemp.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+		front = glm::normalize(frontTemp);
 
-		right = glm::normalize(glm::cross(worldUp, front));
+		right = glm::normalize(glm::cross(front, worldUp));
 		up	  = glm::normalize(glm::cross(right, front));
 	}
 };

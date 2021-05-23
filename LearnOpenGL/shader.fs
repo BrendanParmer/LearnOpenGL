@@ -5,11 +5,10 @@
 
 	uniform sampler2D texture1;
 	uniform float mixValue;
-	uniform unsigned int thing;
 
 	void main()
 	{
 		vec4 texColor = texture(texture1, ourTex);
 		texColor.a = mixValue;
-		FragColor = texColor + vec4(ourColor, mixValue);
+		FragColor = texColor;
 	};
