@@ -75,47 +75,48 @@ int main() {
 
 	//c u b e
 	float cube[] = {
-		-0.5f, -0.5f, -0.5f,
-		 0.5f, -0.5f, -0.5f,
-		 0.5f,  0.5f, -0.5f,
-		 0.5f,  0.5f, -0.5f,
-		-0.5f,  0.5f, -0.5f,
-		-0.5f, -0.5f, -0.5f,
+		//positions				//normals
+		-0.5f, -0.5f, -0.5f,	0.0f,  0.0f, -1.0f,
+		 0.5f, -0.5f, -0.5f,	0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,	0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,	0.0f,  0.0f, -1.0f,
+		-0.5f,  0.5f, -0.5f,	0.0f,  0.0f, -1.0f,
+		-0.5f, -0.5f, -0.5f,	0.0f,  0.0f, -1.0f,
 
-		-0.5f, -0.5f,  0.5f,
-		 0.5f, -0.5f,  0.5f,
-		 0.5f,  0.5f,  0.5f,
-		 0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f,  0.5f,
-		-0.5f, -0.5f,  0.5f,
+		-0.5f, -0.5f,  0.5f,	0.0f,  0.0f,  1.0f,
+		 0.5f, -0.5f,  0.5f,	0.0f,  0.0f,  1.0f,
+		 0.5f,  0.5f,  0.5f,	0.0f,  0.0f,  1.0f,
+		 0.5f,  0.5f,  0.5f,	0.0f,  0.0f,  1.0f,
+		-0.5f,  0.5f,  0.5f,	0.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f,  0.5f,	0.0f,  0.0f,  1.0f,
 
-		-0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f, -0.5f,
-		-0.5f, -0.5f, -0.5f,
-		-0.5f, -0.5f, -0.5f,
-		-0.5f, -0.5f,  0.5f,
-		-0.5f,  0.5f,  0.5f,
+		-0.5f,  0.5f,  0.5f,	-1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,	-1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,	-1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,	-1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,	-1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,	-1.0f,  0.0f,  0.0f,
 
-		 0.5f,  0.5f,  0.5f,
-		 0.5f,  0.5f, -0.5f,
-		 0.5f, -0.5f, -0.5f,
-		 0.5f, -0.5f, -0.5f,
-		 0.5f, -0.5f,  0.5f,
-		 0.5f,  0.5f,  0.5f,
+		 0.5f,  0.5f,  0.5f,	1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,	1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,	1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,	1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,	1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,	1.0f,  0.0f,  0.0f,
 
-		-0.5f, -0.5f, -0.5f,
-		 0.5f, -0.5f, -0.5f,
-		 0.5f, -0.5f,  0.5f,
-		 0.5f, -0.5f,  0.5f,
-		-0.5f, -0.5f,  0.5f,
-		-0.5f, -0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,	0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,	0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,	0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,	0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,	0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,	0.0f, -1.0f,  0.0f,
 
-		-0.5f,  0.5f, -0.5f,
-		 0.5f,  0.5f, -0.5f,
-		 0.5f,  0.5f,  0.5f,
-		 0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f, -0.5f,
+		-0.5f,  0.5f, -0.5f,	0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,	0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,	0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,	0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,	0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,	0.0f,  1.0f,  0.0f
 	};
 
 	unsigned int cubeVBO, cubeVAO;
@@ -129,15 +130,18 @@ int main() {
 	glBindVertexArray(cubeVAO);
 
 	//sets vertex position attribute pointers
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 	unsigned int lightVAO;
 	glGenVertexArrays(1, &lightVAO);
 	glBindVertexArray(lightVAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
 	/*unsigned int texture1;
@@ -240,6 +244,7 @@ int main() {
 		cubeShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
 		cubeShader.setVec3("lightColor", light);
 		cubeShader.setFloat("ambientStrength", ambientStrength);
+		cubeShader.setVec3("lightPos", lightPos);
 
 		//Vertices -> screen 3D goodness
 		glm::mat4 projection = glm::perspective(camera.zoom, (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -259,6 +264,9 @@ int main() {
 			float angle = 1.1f * i;
 			model = glm::rotate(model, (float)glfwGetTime() + angle, glm::vec3(0.5f, 1.0f, 0.0f));
 			cubeShader.setMat4("model", model);
+
+			glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(model)));
+			cubeShader.setMat4("normalMatrix", normalMatrix);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
@@ -294,6 +302,7 @@ int main() {
 
 	glDeleteVertexArrays(1, &cubeVAO);
 	glDeleteVertexArrays(1, &axesVAO);
+	glDeleteVertexArrays(1, &lightVAO);
 	glDeleteBuffers(1, &cubeVBO);
 	glDeleteBuffers(1, &axesVBO);
 
