@@ -41,10 +41,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="shader.vs">
+    <Text Include="cube.fs">
       <Filter>Source Files\shaders</Filter>
     </Text>
-    <Text Include="cube.fs">
+    <Text Include="cube.vs">
       <Filter>Source Files\shaders</Filter>
     </Text>
   </ItemGroup>
@@ -52,5 +52,16 @@
     <Image Include="..\..\..\..\Documents\Blender\Image Textures\duck_of_doom.png">
       <Filter>Textures</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="axes.fs">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="axes.vs">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="light.fs">
+      <Filter>Source Files\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

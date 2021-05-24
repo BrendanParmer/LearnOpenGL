@@ -1,10 +1,15 @@
-#version 330 core //Simple C Fragment Shader Program
+#version 330 core
 	out vec4 FragColor;
-	in vec3 ourColor;
 
 	uniform float mixValue;
+	uniform vec3 objectColor;
+	uniform vec3 lightColor;
+
+	uniform float ambientStrength;
 
 	void main()
 	{
-		FragColor = vec4(ourColor, mixValue);
+		vec3 ambient = ambientStrength * lightColor;
+		FragColor = vec4(ambient * objectColor, mixValue);
+		//FragColor = vec4(1.0f, 0.5f, 1.0f, 1.0f);
 	};

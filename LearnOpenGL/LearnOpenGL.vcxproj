@@ -163,11 +163,16 @@
     <ClInclude Include="shader.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="shader.vs" />
+    <Text Include="cube.vs" />
     <Text Include="cube.fs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\Documents\Blender\Image Textures\duck_of_doom.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="axes.fs" />
+    <None Include="axes.vs" />
+    <None Include="light.fs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

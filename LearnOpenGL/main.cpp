@@ -33,6 +33,8 @@ float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
+bool axesOn = true;
+
 int main() {
 	glfwInit(); //configures GLFW for OpenGL 3.3
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -49,7 +51,7 @@ int main() {
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetScrollCallback(window, scroll_callback);
-	//glfwSetMouseButtonCallback(window, mouse_button_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(window, mouse_callback);
 
@@ -59,11 +61,17 @@ int main() {
 		return -1;
 	}
 
-	Shader ourShader("shader.vs", "cube.fs");
-
-
-
 	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT); //first two parameters set the bottom left corner of the screen's coordinates
+
+	//enables us to use alpha channel goodness
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_DEPTH_TEST); 
+
+	Shader cubeShader("cube.vs", "cube.fs");
+	Shader lightShader("cube.vs", "light.fs");
+	Shader axesShader("axes.vs", "axes.fs");
+
 
 	//c u b e
 	float cube[] = {
@@ -113,14 +121,22 @@ int main() {
 	unsigned int cubeVBO, cubeVAO;
 	glGenVertexArrays(1, &cubeVAO);
 	glGenBuffers(1, &cubeVBO);
-	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-	glBindVertexArray(cubeVAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
 
+	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+	glBindVertexArray(cubeVAO);
 
 	//sets vertex position attribute pointers
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	unsigned int lightVAO;
+	glGenVertexArrays(1, &lightVAO);
+	glBindVertexArray(lightVAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
@@ -158,36 +174,28 @@ int main() {
 		0, 0, 0,			0.5f, 0, 0,
 		0, endpoint, 0,		0, 1.0f, 0,
 		0, 0, 0,			0, 1.0f, 0,
-		0, -endpoint, 0,	0, 0.25f, 0,
-		0, 0, 0,			0, 0.25f, 0,
+		0, -endpoint, 0,	0, 0.5f, 0,
+		0, 0, 0,			0, 0.5f, 0,
 		0, 0, endpoint,		0, 0, 1.0f,
 		0, 0, 0,			0, 0, 1.0f,
-		0, 0, -endpoint,	0, 0, 0.25f,
-		0, 0, 0,			0, 0, 0.25f
+		0, 0, -endpoint,	0, 0, 0.5f,
+		0, 0, 0,			0, 0, 0.5f
 	};
+
 	unsigned int axesVBO, axesVAO;
 	glGenVertexArrays(1, &axesVAO);
 	glGenBuffers(1, &axesVBO);
-	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-	glBindVertexArray(axesVAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, axesVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(axes), axes, GL_STATIC_DRAW);
 
+	glBindVertexArray(axesVAO);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-
-	//enables us to use alpha channel goodness
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glEnable(GL_DEPTH_TEST);
-
-	ourShader.use();
 
 	glm::vec3 cubePos[] = {
 		glm::vec3(0.0f,  0.0f,  0.0f),
@@ -201,6 +209,10 @@ int main() {
 		glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
+	glm::vec3 light = glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 lightPos = glm::vec3(5.0f, 5.0f, 5.0f);
+
+	float ambientStrength = 0.1f;
 
 	while (!glfwWindowShouldClose(window))//glfwWindowShouldClose checks if it's been instructed to close
 	{
@@ -211,64 +223,78 @@ int main() {
 
 		processInput(window); //checks for inputs
 
-		glClearColor(0.08f, 0.08f, 0.1f, 1.0f);
+		glClearColor(0.07f, 0.07f, 0.08f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clears the color buffer and resets it to the above value
 
 		/*float timeValue = glfwGetTime();
 		float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
 		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
 		glUseProgram(shaderProgram);
-		glUniform4f(vertexColorLocation, greenValue, greenValue, 0.0f, 1.0f);*/
+		glUniform4f(vertexColorLocation, greenValue, greenValue, 0.0f, 1.0f);
 
-		/*glActiveTexture(GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);*/
 
-		ourShader.use();
-		ourShader.setFloat("mixValue", mixValue);
-
-		//transformation stuff
-		/*glm::mat4 trans = glm::mat4(1.0f);
-		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
-		trans = glm::scale(trans, glm::vec3((float)(sin(glfwGetTime())/2.0+0.5), (float)(cos(2*glfwGetTime()) / 2.0 + 0.5), 1.0));*/
-
-		//ourShader.setMat4("transform", trans);
-
-		//camera setup
-
+		cubeShader.use();
+		cubeShader.setFloat("mixValue", mixValue);
+		cubeShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+		cubeShader.setVec3("lightColor", light);
+		cubeShader.setFloat("ambientStrength", ambientStrength);
 
 		//Vertices -> screen 3D goodness
 		glm::mat4 projection = glm::perspective(camera.zoom, (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		ourShader.setMat4("projection", projection);
+		cubeShader.setMat4("projection", projection);
 
 		glm::mat4 view = camera.getViewMatrix();
-		ourShader.setMat4("view", view);
+		cubeShader.setMat4("view", view);
+
+		glm::mat4 cubeModel = glm::mat4(1.0f);
+		cubeShader.setMat4("model", cubeModel);
 
 		glBindVertexArray(cubeVAO);
-
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		for (unsigned int i = 0; i < 10; i++) 
 		{
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePos[i]);
 			float angle = 1.1f * i;
 			model = glm::rotate(model, (float)glfwGetTime() + angle, glm::vec3(0.5f, 1.0f, 0.0f));
-			ourShader.setMat4("model", model);
+			cubeShader.setMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
-		glm::mat4 model = glm::mat4(1.0f);
-		ourShader.setMat4("model", model);
-		glBindVertexArray(axesVAO);
-		glLineWidth(3.3f);
-		glDrawArrays(GL_LINES, 0, 12);
-		glLineWidth(1.0f);
+
+		lightShader.use();
+		lightShader.setVec3("lightColor", light);
+		lightShader.setFloat("mixValue", mixValue);
+		lightShader.setMat4("projection", projection);
+		lightShader.setMat4("view", view);
+		glm::mat4 lightModel = glm::mat4(1.0f);
+		lightModel = glm::translate(lightModel, lightPos);
+		lightShader.setMat4("model", lightModel);
+		glBindVertexArray(lightVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		if (axesOn)
+		{
+			axesShader.use();
+			//glm::mat4 view = camera.getViewMatrix();
+			axesShader.setMat4("view", view);
+			//glm::mat4 projection = glm::perspective(camera.zoom, (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+			axesShader.setMat4("projection", projection);
+			glm::mat4 axesModel = glm::mat4(1.0f);
+			axesShader.setMat4("model", axesModel);
+
+			glBindVertexArray(axesVAO);
+			glLineWidth(3.0f);
+			glDrawArrays(GL_LINES, 0, 12);
+		}
 
 		glfwSwapBuffers(window); //swaps the color buffer (kinda reloads the screen)
 		glfwPollEvents(); //checks if any events are triggered
 	}
 
 	glDeleteVertexArrays(1, &cubeVAO);
-	glDeleteBuffers(1, &cubeVBO);
 	glDeleteVertexArrays(1, &axesVAO);
+	glDeleteBuffers(1, &cubeVBO);
 	glDeleteBuffers(1, &axesVBO);
 
 	glfwTerminate(); //cleans up resources and stuff properly
@@ -308,8 +334,6 @@ void processInput(GLFWwindow* window)
 		camera.processKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 		camera.processKeyboard(RIGHT, deltaTime);
-
-
 	//if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 	//{
 	//	//camUp.y += camSpeed;
@@ -323,16 +347,16 @@ void scroll_callback(GLFWwindow*, double xoffset, double yoffset)
 {
 	camera.processMouseScroll(yoffset);
 }
-/*void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
 	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) 
 	{
-		
+		axesOn = !axesOn;
 	}
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) 
 	{
 	}
-}*/
+}
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) 
 {
 	if (firstMouse)
