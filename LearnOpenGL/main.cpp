@@ -17,9 +17,10 @@ void processInput(GLFWwindow* window);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+glm::mat3 mat4tomat3(glm::mat4 fourMatrix);
 
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1200;
+const unsigned int SCR_HEIGHT = 900;
 
 float mixValue = 1.0f;
 
@@ -60,6 +61,8 @@ int main() {
 		std::cout << "Failed to initialize GLAD you boomer :(" << std::endl;
 		return -1;
 	}
+
+	srand((unsigned int)time(NULL));
 
 	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT); //first two parameters set the bottom left corner of the screen's coordinates
 
@@ -201,26 +204,57 @@ int main() {
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
-	glm::vec3 cubePos[] = {
-		glm::vec3(0.0f,  0.0f,  0.0f),
-		glm::vec3(2.0f,  5.0f, -15.0f),
-		glm::vec3(-1.5f, -2.2f, -2.5f),
-		glm::vec3(-3.8f, -2.0f, -12.3f),
-		glm::vec3(2.4f, -0.4f, -3.5f),
-		glm::vec3(-1.7f,  3.0f, -7.5f),
-		glm::vec3(1.3f, -2.0f, -2.5f),
-		glm::vec3(1.5f,  2.0f, -2.5f),
-		glm::vec3(1.5f,  0.2f, -1.5f),
-		glm::vec3(-1.3f,  1.0f, -1.5f)
-	};
-	glm::vec3 light = glm::vec3(1.0f, 1.0f, 1.0f);
-	glm::vec3 lightPos = glm::vec3(5.0f, 5.0f, 5.0f);
 
-	float ambientStrength = 0.1f;
+	//generate a whole bunch of cube bois, might wanna make it an object 
+	const unsigned int numCubes = 20;
+	float posLow = -5.0f;
+	float posHigh = 5.0f;
+	glm::vec3 cubePos[numCubes];
+	for (int i = 0; i < numCubes; i++) 
+	{
+		float cubex = posLow + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (posHigh - posLow)));
+		float cubey = posLow + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (posHigh - posLow)));
+		float cubez = posLow + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (posHigh - posLow)));
+		cubePos[i] = glm::vec3(cubex, cubey, cubez);
+	}
+	glm::vec3 cubeCol[numCubes];
+	for (int i = 0; i < numCubes; i++) 
+	{
+		float oColorR = 0.5f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / -0.5f));
+		float oColorG = 0.5f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / -0.5f));
+		float oColorB = 0.5f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / -0.5f));
+		cubeCol[i] = glm::vec3(oColorR, oColorG, oColorB);
+	}
+
+	float scaleLow = 0.5f;
+	float scaleHigh = 1.5f;
+	glm::vec3 cubeScale[numCubes];
+	for (int i = 0; i < numCubes; i++)
+	{
+		float scalex = scaleLow + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (scaleHigh - scaleLow)));
+		float scaley = scaleLow + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (scaleHigh - scaleLow)));
+		float scalez = scaleLow + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (scaleHigh - scaleLow)));
+		cubeScale[i] = glm::vec3(scalex, scaley, scalez);
+	}
+	float cubeSpeed[numCubes];
+	for (int i = 0; i < numCubes; i++)
+	{
+		cubeSpeed[i] = scaleLow + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (scaleHigh - scaleLow)));
+	}
+
+
+	//light settings
+	glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	float lightRadius = 10.0f;
+	float lightSpeed = 0.5f;
+
+	float ambientStrength = 0.2f;
+	float specularStrength = 0.7f;
+
+	int shininess = 32;
 
 	while (!glfwWindowShouldClose(window))//glfwWindowShouldClose checks if it's been instructed to close
 	{
-
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
@@ -238,13 +272,16 @@ int main() {
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);*/
+		glm::vec3 lightPos = glm::vec3(lightRadius * sin(glfwGetTime() * lightSpeed), lightRadius * cos(glfwGetTime()* lightSpeed), 2.5f);
 
 		cubeShader.use();
 		cubeShader.setFloat("mixValue", mixValue);
-		cubeShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-		cubeShader.setVec3("lightColor", light);
+		cubeShader.setVec3("lightColor", lightColor);
 		cubeShader.setFloat("ambientStrength", ambientStrength);
 		cubeShader.setVec3("lightPos", lightPos);
+		cubeShader.setVec3("viewPos", camera.position);
+		cubeShader.setFloat("specularStrength", specularStrength);
+		cubeShader.setInt("shininess", shininess);
 
 		//Vertices -> screen 3D goodness
 		glm::mat4 projection = glm::perspective(camera.zoom, (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -255,23 +292,24 @@ int main() {
 
 		glm::mat4 cubeModel = glm::mat4(1.0f);
 		cubeShader.setMat4("model", cubeModel);
-
 		glBindVertexArray(cubeVAO);
-		for (unsigned int i = 0; i < 10; i++) 
+		for (unsigned int i = 0; i < numCubes; i++) 
 		{
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePos[i]);
+			model = glm::scale(model, cubeScale[i]);
 			float angle = 1.1f * i;
-			model = glm::rotate(model, (float)glfwGetTime() + angle, glm::vec3(0.5f, 1.0f, 0.0f));
+			model = glm::rotate(model, (float)glfwGetTime()*cubeSpeed[i] + angle, glm::vec3(0.5f, 1.0f, 0.0f));
 			cubeShader.setMat4("model", model);
+			cubeShader.setVec3("objectColor", cubeCol[i]);
 
-			glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(model)));
-			cubeShader.setMat4("normalMatrix", normalMatrix);
+			glm::mat3 normalMatrix = glm::transpose(glm::inverse(mat4tomat3(model)));
+			cubeShader.setMat3("normalMatrix", normalMatrix);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
 		lightShader.use();
-		lightShader.setVec3("lightColor", light);
+		lightShader.setVec3("lightColor", lightColor);
 		lightShader.setFloat("mixValue", mixValue);
 		lightShader.setMat4("projection", projection);
 		lightShader.setMat4("view", view);
@@ -380,4 +418,24 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastY = ypos;
 
 	camera.processMouseMovement(xoffset, yoffset);
+}
+
+//should probably move elsewhere
+//obtains upper left 3x3 matrix of a 4x4 matrix so we don't have to calculate the normal matrix for each vertex
+glm::mat3 mat4tomat3(glm::mat4 fourMat)
+{
+	float threeVals[9];
+	const float* pSource = (const float*)glm::value_ptr(fourMat);
+	unsigned int j = 0;
+	for (unsigned int i = 0; i < 9; i++)
+	{
+		if ((j + 1) % 4 == 0)
+		{
+			j++;
+		}
+		threeVals[i] = pSource[j];
+		j++;
+	}
+	glm::mat3 newMat = glm::make_mat3(threeVals);
+	return newMat;
 }
