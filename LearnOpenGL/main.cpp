@@ -19,8 +19,8 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 glm::mat3 mat4tomat3(glm::mat4 fourMatrix);
 
-const unsigned int SCR_WIDTH = 1200;
-const unsigned int SCR_HEIGHT = 900;
+const unsigned int SCR_WIDTH = 1920;
+const unsigned int SCR_HEIGHT = 1080;
 
 float mixValue = 1.0f;
 
@@ -226,8 +226,8 @@ int main() {
 		cubeCol[i] = glm::vec3(oColorR, oColorG, oColorB);
 	}
 
-	float scaleLow = 0.5f;
-	float scaleHigh = 1.5f;
+	float scaleLow = 0.75f;
+	float scaleHigh = 1.25f;
 	glm::vec3 cubeScale[numCubes];
 	for (int i = 0; i < numCubes; i++)
 	{
@@ -248,10 +248,10 @@ int main() {
 	float lightRadius = 10.0f;
 	float lightSpeed = 0.5f;
 
-	float ambientStrength = 0.2f;
-	float specularStrength = 0.7f;
-
-	int shininess = 32;
+	float shininess = 32.0f;
+	float ambientStrength = 0.05f;
+	float diffuseStrength = 0.75f;
+	float specularStrength = 0.75f;
 
 	while (!glfwWindowShouldClose(window))//glfwWindowShouldClose checks if it's been instructed to close
 	{
@@ -259,10 +259,10 @@ int main() {
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		processInput(window); //checks for inputs
+		processInput(window);
 
-		glClearColor(0.07f, 0.07f, 0.08f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clears the color buffer and resets it to the above value
+		glClearColor(0.07f, 0.07f, 0.07f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		/*float timeValue = glfwGetTime();
 		float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
@@ -276,12 +276,23 @@ int main() {
 
 		cubeShader.use();
 		cubeShader.setFloat("mixValue", mixValue);
-		cubeShader.setVec3("lightColor", lightColor);
-		cubeShader.setFloat("ambientStrength", ambientStrength);
-		cubeShader.setVec3("lightPos", lightPos);
+		//cubeShader.setVec3("lightColor", lightColor);
+		//cubeShader.setVec3("lightPos", lightPos);
 		cubeShader.setVec3("viewPos", camera.position);
-		cubeShader.setFloat("specularStrength", specularStrength);
-		cubeShader.setInt("shininess", shininess);
+		//cubeShader.setFloat("shininess", shininess);
+
+		/*cubeShader.setFloat("material.shininess", shininess);
+		cubeShader.setVec3("material.ambient", cubeCol[0]);
+		cubeShader.setVec3("material.diffuse", cubeCol[0]);
+		cubeShader.setVec3("material.specular", cubeCol[0]);*/
+
+		cubeShader.setVec3("light.position", lightPos);
+		glm::vec3 lightAmbient = ambientStrength * lightColor;
+		cubeShader.setVec3("light.ambient", lightAmbient);
+		glm::vec3 lightDiffuse = diffuseStrength * lightColor;
+		cubeShader.setVec3("light.diffuse", lightDiffuse);
+		cubeShader.setVec3("light.specular", lightColor);
+
 
 		//Vertices -> screen 3D goodness
 		glm::mat4 projection = glm::perspective(camera.zoom, (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -293,21 +304,28 @@ int main() {
 		glm::mat4 cubeModel = glm::mat4(1.0f);
 		cubeShader.setMat4("model", cubeModel);
 		glBindVertexArray(cubeVAO);
-		for (unsigned int i = 0; i < numCubes; i++) 
+		for (unsigned int i = 0; i < numCubes; i++)
 		{
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePos[i]);
 			model = glm::scale(model, cubeScale[i]);
 			float angle = 1.1f * i;
-			model = glm::rotate(model, (float)glfwGetTime()*cubeSpeed[i] + angle, glm::vec3(0.5f, 1.0f, 0.0f));
+			model = glm::rotate(model, (float)glfwGetTime() * cubeSpeed[i] + angle, glm::vec3(0.5f, 1.0f, 0.0f));
 			cubeShader.setMat4("model", model);
-			cubeShader.setVec3("objectColor", cubeCol[i]);
+			//cubeShader.setVec3("objectColor", cubeCol[i]);
 
 			glm::mat3 normalMatrix = glm::transpose(glm::inverse(mat4tomat3(model)));
 			cubeShader.setMat3("normalMatrix", normalMatrix);
+
+			cubeShader.setVec3("material.ambient", cubeCol[i]);
+			cubeShader.setVec3("material.diffuse", cubeCol[i]);
+			cubeShader.setVec3("material.specular", glm::vec3(specularStrength));
+			cubeShader.setFloat("material.shininess", shininess);
+
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
+		//light cube
 		lightShader.use();
 		lightShader.setVec3("lightColor", lightColor);
 		lightShader.setFloat("mixValue", mixValue);
@@ -319,6 +337,7 @@ int main() {
 		glBindVertexArray(lightVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
+		//axes
 		if (axesOn)
 		{
 			axesShader.use();
