@@ -14,7 +14,7 @@ enum Camera_Movement {
 	RIGHT
 };
 
-const float YAW = 0.0f;
+const float YAW = -100.0f;
 const float PITCH = 0.0f;
 const float SPEED = 5.0f;
 const float SENSITIVITY = 0.07f;
@@ -41,7 +41,7 @@ public:
 		float setYaw = YAW,
 		float setPitch = PITCH)
 		:
-		front(glm::vec3(-1.0f, 0.0f, 0.0f)),
+		front(glm::vec3(0.0f, 1.0f, 0.0f)),
 		movementSpeed(SPEED),
 		mouseSensitivity(SENSITIVITY),
 		zoom(ZOOM)
@@ -50,6 +50,7 @@ public:
 		worldUp = setWorldUp;
 		yaw = setYaw;
 		pitch = setPitch;
+		updateCameraVectors();
 	}
 	glm::mat4 getViewMatrix()
 	{

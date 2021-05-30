@@ -160,6 +160,8 @@
     <ClInclude Include="..\..\..\..\Documents\OpenGL\Include\glad.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="external\stb_image.h" />
+    <ClInclude Include="filesystem.h" />
+    <ClInclude Include="private.h" />
     <ClInclude Include="shader.h" />
   </ItemGroup>
   <ItemGroup>
@@ -168,6 +170,9 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\Documents\Blender\Image Textures\duck_of_doom.png" />
+    <Image Include="blue.png" />
+    <Image Include="emission.png" />
+    <Image Include="invert.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="axes.fs" />

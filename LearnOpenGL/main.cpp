@@ -1,5 +1,5 @@
 #include <glad.h>
-#include <GLFW\glfw3.h>
+#include <GLFW/glfw3.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -8,9 +8,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <iostream>
 #include "shader.h"
 #include "camera.h"
+#include "filesystem.h"
+#include "private.h" //for system files and stuff, comments where this is used and will need replaced with your own stuff
+
+#include <iostream>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -18,11 +21,12 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 glm::mat3 mat4tomat3(glm::mat4 fourMatrix);
+unsigned int loadTexture(char const* path);
 
-const unsigned int SCR_WIDTH = 1920;
-const unsigned int SCR_HEIGHT = 1080;
+const unsigned int SCR_WIDTH = 920;
+const unsigned int SCR_HEIGHT = 690;
 
-float mixValue = 1.0f;
+float mixValue = 0.0f;
 
 //stuff to keep movement speed constant across different hardware
 float deltaTime = 0.0f; //time between last and current frames
@@ -78,48 +82,48 @@ int main() {
 
 	//c u b e
 	float cube[] = {
-		//positions				//normals
-		-0.5f, -0.5f, -0.5f,	0.0f,  0.0f, -1.0f,
-		 0.5f, -0.5f, -0.5f,	0.0f,  0.0f, -1.0f,
-		 0.5f,  0.5f, -0.5f,	0.0f,  0.0f, -1.0f,
-		 0.5f,  0.5f, -0.5f,	0.0f,  0.0f, -1.0f,
-		-0.5f,  0.5f, -0.5f,	0.0f,  0.0f, -1.0f,
-		-0.5f, -0.5f, -0.5f,	0.0f,  0.0f, -1.0f,
+		// positions          // normals           // texture coords
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
 
-		-0.5f, -0.5f,  0.5f,	0.0f,  0.0f,  1.0f,
-		 0.5f, -0.5f,  0.5f,	0.0f,  0.0f,  1.0f,
-		 0.5f,  0.5f,  0.5f,	0.0f,  0.0f,  1.0f,
-		 0.5f,  0.5f,  0.5f,	0.0f,  0.0f,  1.0f,
-		-0.5f,  0.5f,  0.5f,	0.0f,  0.0f,  1.0f,
-		-0.5f, -0.5f,  0.5f,	0.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
 
-		-0.5f,  0.5f,  0.5f,	-1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f,	-1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,	-1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,	-1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f,	-1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f,	-1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
 
-		 0.5f,  0.5f,  0.5f,	1.0f,  0.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,	1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,	1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,	1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,	1.0f,  0.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,	1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
 
-		-0.5f, -0.5f, -0.5f,	0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,	0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,	0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,	0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f,	0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,	0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
 
-		-0.5f,  0.5f, -0.5f,	0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,	0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,	0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,	0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f,	0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f,	0.0f,  1.0f,  0.0f
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
 	};
 
 	unsigned int cubeVBO, cubeVAO;
@@ -133,45 +137,38 @@ int main() {
 	glBindVertexArray(cubeVAO);
 
 	//sets vertex position attribute pointers
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+
+	//texturing
+	//unsigned int diffuseMap = loadTexture(FileSystem::getPath("blue.png").c_str()); not working :(
+	//unsigned int specularMap = loadTexture(FileSystem::getPath("invert.png").c_str());
+
+	unsigned int diffuseMap = loadTexture(diffuseMapPath.c_str()); //paths are in private file, replace with your own path for now. filesystem class isn't working quite right, right now.
+	unsigned int specularMap = loadTexture(specularMapPath.c_str());
+	unsigned int emissionMap = loadTexture(emissionMapPath.c_str());
+
+	cubeShader.use();
+	cubeShader.setInt("material.diffuse", 0);
+	cubeShader.setInt("material.specular", 1);
+	cubeShader.setInt("material.emission", 2);
+
+	//light
 	unsigned int lightVAO;
 	glGenVertexArrays(1, &lightVAO);
 	glBindVertexArray(lightVAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	/*unsigned int texture1;
-
-	glGenTextures(1, &texture1);
-	glBindTexture(GL_TEXTURE_2D, texture1);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	int width, height, nrChannels;
-	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data = stbi_load("C:/Users/bjpar/Documents/Blender/Image Textures/duck_of_doom.png", &width, &height, &nrChannels, 0);
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
-	stbi_image_free(data);*/
-
+	//axes
 	float endpoint = 1000.0f;
 	float axes[]{
 		//vertices			//colors
@@ -244,13 +241,12 @@ int main() {
 
 
 	//light settings
-	glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 	float lightRadius = 10.0f;
 	float lightSpeed = 0.5f;
 
 	float shininess = 32.0f;
-	float ambientStrength = 0.05f;
-	float diffuseStrength = 0.75f;
+	float ambientStrength = 0.02f;
+	float diffuseStrength = 0.5f;
 	float specularStrength = 0.75f;
 
 	while (!glfwWindowShouldClose(window))//glfwWindowShouldClose checks if it's been instructed to close
@@ -264,15 +260,8 @@ int main() {
 		glClearColor(0.07f, 0.07f, 0.07f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		/*float timeValue = glfwGetTime();
-		float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-		glUseProgram(shaderProgram);
-		glUniform4f(vertexColorLocation, greenValue, greenValue, 0.0f, 1.0f);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture1);*/
 		glm::vec3 lightPos = glm::vec3(lightRadius * sin(glfwGetTime() * lightSpeed), lightRadius * cos(glfwGetTime()* lightSpeed), 2.5f);
+		glm::vec3 lightColor = glm::vec3(1.0f - mixValue);
 
 		cubeShader.use();
 		cubeShader.setFloat("mixValue", mixValue);
@@ -293,7 +282,6 @@ int main() {
 		cubeShader.setVec3("light.diffuse", lightDiffuse);
 		cubeShader.setVec3("light.specular", lightColor);
 
-
 		//Vertices -> screen 3D goodness
 		glm::mat4 projection = glm::perspective(camera.zoom, (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		cubeShader.setMat4("projection", projection);
@@ -303,7 +291,16 @@ int main() {
 
 		glm::mat4 cubeModel = glm::mat4(1.0f);
 		cubeShader.setMat4("model", cubeModel);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, diffuseMap);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, specularMap);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, emissionMap);
+
 		glBindVertexArray(cubeVAO);
+
 		for (unsigned int i = 0; i < numCubes; i++)
 		{
 			glm::mat4 model = glm::mat4(1.0f);
@@ -317,9 +314,6 @@ int main() {
 			glm::mat3 normalMatrix = glm::transpose(glm::inverse(mat4tomat3(model)));
 			cubeShader.setMat3("normalMatrix", normalMatrix);
 
-			cubeShader.setVec3("material.ambient", cubeCol[i]);
-			cubeShader.setVec3("material.diffuse", cubeCol[i]);
-			cubeShader.setVec3("material.specular", glm::vec3(specularStrength));
 			cubeShader.setFloat("material.shininess", shininess);
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -370,7 +364,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) //func
 {
 	glViewport(0, 0, width, height);
 }
-
 void processInput(GLFWwindow* window)
 {
 	//close window
@@ -438,7 +431,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 	camera.processMouseMovement(xoffset, yoffset);
 }
-
 //should probably move elsewhere
 //obtains upper left 3x3 matrix of a 4x4 matrix so we don't have to calculate the normal matrix for each vertex
 glm::mat3 mat4tomat3(glm::mat4 fourMat)
@@ -457,4 +449,40 @@ glm::mat3 mat4tomat3(glm::mat4 fourMat)
 	}
 	glm::mat3 newMat = glm::make_mat3(threeVals);
 	return newMat;
+}
+unsigned int loadTexture(char const* path)
+{
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+
+	int width, height, nrComponents;
+	unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
+
+	if (data)
+	{
+		GLenum format = 0;
+		if (nrComponents == 1)
+			format = GL_RED;
+		else if (nrComponents == 3)
+			format = GL_RGB;
+		else if (nrComponents == 4)
+			format = GL_RGBA;
+		else
+			format = GL_RED;
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
+	return textureID;
 }

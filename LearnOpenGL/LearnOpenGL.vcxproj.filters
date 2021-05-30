@@ -39,6 +39,12 @@
     <ClInclude Include="camera.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="private.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="cube.fs">
@@ -50,6 +56,15 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\Documents\Blender\Image Textures\duck_of_doom.png">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="blue.png">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="invert.png">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="emission.png">
       <Filter>Textures</Filter>
     </Image>
   </ItemGroup>
