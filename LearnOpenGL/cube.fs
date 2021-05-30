@@ -22,7 +22,6 @@
 	uniform Light light;
 
 	uniform vec3 viewPos;
-	uniform float mixValue;
 
 	void main()
 	{
