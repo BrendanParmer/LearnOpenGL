@@ -58,13 +58,13 @@
     <Image Include="..\..\..\..\Documents\Blender\Image Textures\duck_of_doom.png">
       <Filter>Textures</Filter>
     </Image>
-    <Image Include="blue.png">
-      <Filter>Textures</Filter>
-    </Image>
     <Image Include="invert.png">
       <Filter>Textures</Filter>
     </Image>
     <Image Include="emission.png">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="blue.png">
       <Filter>Textures</Filter>
     </Image>
   </ItemGroup>
