@@ -206,13 +206,13 @@ int main() {
 
 	//generate a whole bunch of cube bois, might wanna make it an object 
 	const unsigned int numCubes = 20;
-	float posLow = -5.0f;
-	float posHigh = 5.0f;
+	float posLow = 0.0f;
+	float posHigh = 10.0f;
 	glm::vec3 cubePos[numCubes];
 	for (int i = 0; i < numCubes; i++) 
 	{
-		float cubex = posLow + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (posHigh - posLow)));
-		float cubey = posLow + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (posHigh - posLow)));
+		float cubex = -posHigh + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (2 * posHigh - posLow)));
+		float cubey = -posHigh + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (2 * posHigh - posLow)));
 		float cubez = posLow + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (posHigh - posLow)));
 		cubePos[i] = glm::vec3(cubex, cubey, cubez);
 	}
@@ -243,7 +243,7 @@ int main() {
 
 
 	//light settings
-	float lightRadius = 10.0f;
+	float lightRadius = 5.0f;
 	float lightSpeed = 0.5f;
 
 	float shininess = 32.0f;
@@ -262,7 +262,9 @@ int main() {
 		glClearColor(0.07f, 0.07f, 0.07f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glm::vec3 lightPos = glm::vec3(lightRadius * sin(glfwGetTime() * lightSpeed), lightRadius * cos(glfwGetTime()* lightSpeed), 2.5f);
+
+		//w = 0 ==> direction vector, w = 1 ==> position vector
+		glm::vec4 lightInfo = glm::vec4(lightRadius * sin(glfwGetTime() * lightSpeed), lightRadius * cos(glfwGetTime()* lightSpeed), 3.0 * sin(glfwGetTime() * lightSpeed * 1.7) + 5.0, 1.0);
 		glm::vec3 lightColor = glm::vec3(1.0f - mixValue);
 
 		cubeShader.use();
@@ -277,12 +279,16 @@ int main() {
 		cubeShader.setVec3("material.diffuse", cubeCol[0]);
 		cubeShader.setVec3("material.specular", cubeCol[0]);*/
 
-		cubeShader.setVec3("light.position", lightPos);
+		cubeShader.setVec4("light.vector", lightInfo);
 		glm::vec3 lightAmbient = ambientStrength * lightColor;
 		cubeShader.setVec3("light.ambient", lightAmbient);
 		glm::vec3 lightDiffuse = diffuseStrength * lightColor;
 		cubeShader.setVec3("light.diffuse", lightDiffuse);
 		cubeShader.setVec3("light.specular", lightColor);
+
+		cubeShader.setFloat("light.a", 0.032f);
+		cubeShader.setFloat("light.b", 0.09f);
+		cubeShader.setFloat("light.c", 1.0f);
 
 		//Vertices -> screen 3D goodness
 		glm::mat4 projection = glm::perspective(camera.zoom, (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -328,7 +334,7 @@ int main() {
 		lightShader.setMat4("projection", projection);
 		lightShader.setMat4("view", view);
 		glm::mat4 lightModel = glm::mat4(1.0f);
-		lightModel = glm::translate(lightModel, lightPos);
+		lightModel = glm::translate(lightModel, glm::vec3(lightInfo.x, lightInfo.y, lightInfo.z));
 		lightShader.setMat4("model", lightModel);
 		glBindVertexArray(lightVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
