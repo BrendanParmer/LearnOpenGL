@@ -5,78 +5,76 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Textures">
-      <UniqueIdentifier>{a03e7e2e-f289-4547-87b5-849a59a6f819}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External">
-      <UniqueIdentifier>{6be56ec5-248d-42d3-991c-45c372a04f10}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\GLAD">
-      <UniqueIdentifier>{a361c402-db91-46f6-bbf8-d722dde98614}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\shaders">
       <UniqueIdentifier>{9540506f-50bd-44de-8f60-005cfadf1a9f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\textures">
+      <UniqueIdentifier>{a03e7e2e-f289-4547-87b5-849a59a6f819}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\External">
+      <UniqueIdentifier>{6be56ec5-248d-42d3-991c-45c372a04f10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\External\GLAD">
+      <UniqueIdentifier>{a361c402-db91-46f6-bbf8-d722dde98614}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\src">
+      <UniqueIdentifier>{091b2782-750f-406d-bd7b-0a40cd5216a3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\Documents\OpenGL\Include\src\glad.c">
-      <Filter>External\GLAD</Filter>
+      <Filter>Source Files\External\GLAD</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Source Files\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Documents\OpenGL\Include\glad.h">
-      <Filter>External\GLAD</Filter>
-    </ClInclude>
-    <ClInclude Include="shader.h">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\External\GLAD</Filter>
     </ClInclude>
     <ClInclude Include="external\stb_image.h">
-      <Filter>External</Filter>
+      <Filter>Source Files\External</Filter>
     </ClInclude>
-    <ClInclude Include="camera.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="src\camera.h">
+      <Filter>Source Files\src</Filter>
     </ClInclude>
-    <ClInclude Include="private.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="src\filesystem.h">
+      <Filter>Source Files\src</Filter>
     </ClInclude>
-    <ClInclude Include="filesystem.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="src\private.h">
+      <Filter>Source Files\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\shader.h">
+      <Filter>Source Files\src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="cube.fs">
+    <None Include="shaders\axes.fs">
       <Filter>Source Files\shaders</Filter>
-    </Text>
-    <Text Include="cube.vs">
+    </None>
+    <None Include="shaders\axes.vs">
       <Filter>Source Files\shaders</Filter>
-    </Text>
+    </None>
+    <None Include="shaders\cube.fs">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="shaders\cube.vs">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="shaders\light.fs">
+      <Filter>Source Files\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\..\Documents\Blender\Image Textures\duck_of_doom.png">
-      <Filter>Textures</Filter>
+    <Image Include="textures\blue.png">
+      <Filter>Source Files\textures</Filter>
     </Image>
-    <Image Include="invert.png">
-      <Filter>Textures</Filter>
+    <Image Include="textures\emission.png">
+      <Filter>Source Files\textures</Filter>
     </Image>
-    <Image Include="emission.png">
-      <Filter>Textures</Filter>
+    <Image Include="textures\invert.png">
+      <Filter>Source Files\textures</Filter>
     </Image>
-    <Image Include="blue.png">
-      <Filter>Textures</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="axes.fs">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="axes.vs">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="light.fs">
-      <Filter>Source Files\shaders</Filter>
-    </None>
   </ItemGroup>
 </Project>

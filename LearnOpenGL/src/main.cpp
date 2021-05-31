@@ -2,7 +2,7 @@
 #include <GLFW/glfw3.h>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+#include "stb_image.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -75,9 +75,9 @@ int main() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_DEPTH_TEST); 
 
-	Shader cubeShader("cube.vs", "cube.fs");
-	Shader lightShader("cube.vs", "light.fs");
-	Shader axesShader("axes.vs", "axes.fs");
+	Shader cubeShader("shaders/cube.vs", "shaders/cube.fs");
+	Shader lightShader("shaders/cube.vs", "shaders/light.fs");
+	Shader axesShader("shaders/axes.vs", "shaders/axes.fs");
 
 
 	//c u b e
@@ -150,7 +150,9 @@ int main() {
 	//unsigned int diffuseMap = loadTexture(FileSystem::getPath("blue.png").c_str()); not working :(
 	//unsigned int specularMap = loadTexture(FileSystem::getPath("invert.png").c_str());
 
-	unsigned int diffuseMap = loadTexture(diffuseMapPath.c_str()); //paths are in private file, replace with your own path for now. filesystem class isn't working quite right, right now.
+
+	//paths are in private file for now, can't get FileSystem class to work just yet. Replace with your own paths
+	unsigned int diffuseMap = loadTexture(diffuseMapPath.c_str());
 	unsigned int specularMap = loadTexture(specularMapPath.c_str());
 	unsigned int emissionMap = loadTexture(emissionMapPath.c_str());
 

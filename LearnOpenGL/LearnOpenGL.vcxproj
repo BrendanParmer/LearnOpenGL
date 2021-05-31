@@ -154,30 +154,27 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Documents\OpenGL\Include\src\glad.c" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Documents\OpenGL\Include\glad.h" />
-    <ClInclude Include="camera.h" />
     <ClInclude Include="external\stb_image.h" />
-    <ClInclude Include="filesystem.h" />
-    <ClInclude Include="private.h" />
-    <ClInclude Include="shader.h" />
+    <ClInclude Include="src\camera.h" />
+    <ClInclude Include="src\filesystem.h" />
+    <ClInclude Include="src\private.h" />
+    <ClInclude Include="src\shader.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="cube.vs" />
-    <Text Include="cube.fs" />
+    <None Include="shaders\axes.fs" />
+    <None Include="shaders\axes.vs" />
+    <None Include="shaders\cube.fs" />
+    <None Include="shaders\cube.vs" />
+    <None Include="shaders\light.fs" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\..\Documents\Blender\Image Textures\duck_of_doom.png" />
-    <Image Include="blue.png" />
-    <Image Include="emission.png" />
-    <Image Include="invert.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="axes.fs" />
-    <None Include="axes.vs" />
-    <None Include="light.fs" />
+    <Image Include="textures\blue.png" />
+    <Image Include="textures\emission.png" />
+    <Image Include="textures\invert.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

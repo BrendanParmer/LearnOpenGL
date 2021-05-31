@@ -18,6 +18,8 @@
 	in vec3 Normal;
 	in vec3 FragPos;
 
+	uniform float mixValue;
+
 	uniform Material material;
 	uniform Light light;
 
@@ -27,6 +29,7 @@
 	{
 		//ambient lighting
 		vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
+		FragColor = vec4(ambient, 1.0f);
 
 		//diffuse lighting
 		vec3 norm = normalize(Normal);
@@ -38,7 +41,7 @@
 		vec3 viewDir = normalize(viewPos - FragPos);
 		vec3 reflectDir = reflect(-lightDir, norm);
 		float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-		vec3 specular = light.specular * spec * (vec3(1.0)-vec3(texture(material.specular, TexCoords)));
+		vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
 
 		//emission
 		vec3 emission = mixValue * vec3(texture(material.emission, TexCoords));
