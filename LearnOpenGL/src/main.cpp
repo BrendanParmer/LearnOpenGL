@@ -75,9 +75,9 @@ int main() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_DEPTH_TEST); 
 
-	Shader cubeShader("shaders/cube.vs", "shaders/cube.fs");
-	Shader lightShader("shaders/cube.vs", "shaders/light.fs");
-	Shader axesShader("shaders/axes.vs", "shaders/axes.fs");
+	Shader cubeShader("shaders/cube.vert", "shaders/cube.frag");
+	Shader lightShader("shaders/cube.vert", "shaders/light.frag");
+	Shader axesShader("shaders/axes.vert", "shaders/axes.frag");
 
 
 	//c u b e

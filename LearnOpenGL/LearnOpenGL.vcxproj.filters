@@ -56,13 +56,16 @@
     <None Include="shaders\axes.vert">
       <Filter>Source Files\shaders</Filter>
     </None>
-    <None Include="shaders\cube.frag">
-      <Filter>Source Files\shaders</Filter>
-    </None>
     <None Include="shaders\cube.vert">
       <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="shaders\light.frag">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="shaders\oldCube.frag">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="shaders\cube.frag">
       <Filter>Source Files\shaders</Filter>
     </None>
   </ItemGroup>
