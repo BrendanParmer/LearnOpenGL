@@ -165,11 +165,11 @@
     <ClInclude Include="src\shader.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\axes.fs" />
-    <None Include="shaders\axes.vs" />
-    <None Include="shaders\cube.fs" />
-    <None Include="shaders\cube.vs" />
-    <None Include="shaders\light.fs" />
+    <None Include="shaders\axes.frag" />
+    <None Include="shaders\axes.vert" />
+    <None Include="shaders\cube.frag" />
+    <None Include="shaders\cube.vert" />
+    <None Include="shaders\light.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\blue.png" />

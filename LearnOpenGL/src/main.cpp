@@ -205,7 +205,7 @@ int main() {
 
 
 	//generate a whole bunch of cube bois, might wanna make it an object 
-	const unsigned int numCubes = 20;
+	const unsigned int numCubes = 25;
 	float posLow = 0.0f;
 	float posHigh = 10.0f;
 	glm::vec3 cubePos[numCubes];
@@ -259,7 +259,9 @@ int main() {
 
 		processInput(window);
 
-		glClearColor(0.07f, 0.07f, 0.07f, 1.0f);
+		glm::vec3 worldColor = glm::vec3(0.07, 0.07, 0.07);
+		glm::vec3 worldColorMixed = (glm::vec3(1.0, 1.0, 1.0f) - glm::vec3(mixValue, mixValue, mixValue)) * worldColor + glm::vec3(0.01, 0.01, 0.01);
+		glClearColor(worldColorMixed.x, worldColorMixed.y, worldColorMixed.z, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 

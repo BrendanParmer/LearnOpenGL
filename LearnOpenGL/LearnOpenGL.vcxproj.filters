@@ -50,19 +50,19 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\axes.fs">
+    <None Include="shaders\axes.frag">
       <Filter>Source Files\shaders</Filter>
     </None>
-    <None Include="shaders\axes.vs">
+    <None Include="shaders\axes.vert">
       <Filter>Source Files\shaders</Filter>
     </None>
-    <None Include="shaders\cube.fs">
+    <None Include="shaders\cube.frag">
       <Filter>Source Files\shaders</Filter>
     </None>
-    <None Include="shaders\cube.vs">
+    <None Include="shaders\cube.vert">
       <Filter>Source Files\shaders</Filter>
     </None>
-    <None Include="shaders\light.fs">
+    <None Include="shaders\light.frag">
       <Filter>Source Files\shaders</Filter>
     </None>
   </ItemGroup>
