@@ -265,8 +265,7 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-		//w = 0 ==> direction vector, w = 1 ==> position vector
-		glm::vec4 lightInfo = glm::vec4(lightRadius * sin(glfwGetTime() * lightSpeed), lightRadius * cos(glfwGetTime()* lightSpeed), 3.0 * sin(glfwGetTime() * lightSpeed * 1.7) + 5.0, 1.0);
+		glm::vec3 lightPosition = glm::vec3(lightRadius * sin(glfwGetTime() * lightSpeed), lightRadius * cos(glfwGetTime()* lightSpeed), 3.0 * sin(glfwGetTime() * lightSpeed * 1.7) + 5.0);
 		glm::vec3 lightColor = glm::vec3(1.0f - mixValue);
 
 		cubeShader.use();
@@ -281,18 +280,23 @@ int main() {
 		cubeShader.setVec3("material.diffuse", cubeCol[0]);
 		cubeShader.setVec3("material.specular", cubeCol[0]);*/
 
-		cubeShader.setVec4("light.vector", lightInfo);
+		cubeShader.setVec3("spotlight.position", camera.position);
+		cubeShader.setVec3("spotlight.direction", camera.front);
+		cubeShader.setFloat("spotlight.cutOff", glm::cos(glm::radians(15.0f)));
+		cubeShader.setFloat("spotlight.outerCutOff", glm::cos(glm::radians(18.0f)));
+
+
 		glm::vec3 lightAmbient = ambientStrength * lightColor;
-		cubeShader.setVec3("light.ambient", lightAmbient);
+		cubeShader.setVec3("spotlight.ambient", lightAmbient);
 		glm::vec3 lightDiffuse = diffuseStrength * lightColor;
-		cubeShader.setVec3("light.diffuse", lightDiffuse);
-		cubeShader.setVec3("light.specular", lightColor);
+		cubeShader.setVec3("spotlight.diffuse", lightDiffuse);
+		cubeShader.setVec3("spotlight.specular", lightColor);
 
-		cubeShader.setFloat("light.a", 0.032f);
-		cubeShader.setFloat("light.b", 0.09f);
-		cubeShader.setFloat("light.c", 1.0f);
+		//attenuation stuff
+		cubeShader.setFloat("spotlight.a", 0.0032f);
+		cubeShader.setFloat("spotlight.b", 0.009f);
+		cubeShader.setFloat("spotlight.c", 1.0f);
 
-		//Vertices -> screen 3D goodness
 		glm::mat4 projection = glm::perspective(camera.zoom, (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		cubeShader.setMat4("projection", projection);
 
@@ -336,7 +340,7 @@ int main() {
 		lightShader.setMat4("projection", projection);
 		lightShader.setMat4("view", view);
 		glm::mat4 lightModel = glm::mat4(1.0f);
-		lightModel = glm::translate(lightModel, glm::vec3(lightInfo.x, lightInfo.y, lightInfo.z));
+		lightModel = glm::translate(lightModel, lightPosition);
 		lightShader.setMat4("model", lightModel);
 		glBindVertexArray(lightVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
