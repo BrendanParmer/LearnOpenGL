@@ -7,6 +7,7 @@
 		sampler2D emission;
 		float shininess;
 	};
+
 	struct DirLight {
 		vec3 direction;
 
@@ -14,6 +15,7 @@
 		vec3 diffuse;
 		vec3 specular;
 	};
+
 	struct PointLight {
 		vec3 position;
 
@@ -26,6 +28,7 @@
 		vec3 diffuse;
 		vec3 specular;
 	};
+
 	struct SpotLight {
 		vec3 position;
 		vec3 direction;
@@ -49,6 +52,7 @@
 	uniform float mixValue;
 
 	uniform Material material;
+	uniform PointLight pointlight;
 	uniform SpotLight spotlight;
 
 	uniform vec3 viewPos;
@@ -61,6 +65,9 @@
 	{
 		vec3 norm = normalize(Normal);
 		vec3 viewDir = normalize(viewPos - FragPos);
+
+		vec3 result = CalcPointLight(pointlight, norm, viewDir);
+
 		FragColor = vec4(CalcSpotLight(spotlight, norm, viewDir), 1.0);
 	};
 

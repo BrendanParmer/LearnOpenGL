@@ -161,6 +161,7 @@
     <ClInclude Include="external\stb_image.h" />
     <ClInclude Include="src\camera.h" />
     <ClInclude Include="src\filesystem.h" />
+    <ClInclude Include="src\light.h" />
     <ClInclude Include="src\private.h" />
     <ClInclude Include="src\shader.h" />
   </ItemGroup>

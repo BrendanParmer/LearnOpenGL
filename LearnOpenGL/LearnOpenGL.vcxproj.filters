@@ -48,6 +48,9 @@
     <ClInclude Include="src\shader.h">
       <Filter>Source Files\src</Filter>
     </ClInclude>
+    <ClInclude Include="src\light.h">
+      <Filter>Source Files\src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\axes.frag">
