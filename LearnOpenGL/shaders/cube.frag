@@ -52,7 +52,9 @@
 	uniform float mixValue;
 
 	uniform Material material;
-	uniform PointLight pointlight;
+	uniform DirLight dirlight;
+	#define NUM_POINTS 5 //figure out how to conenct this with numPoints in main.cpp
+	uniform PointLight points[NUM_POINTS];
 	uniform SpotLight spotlight;
 
 	uniform vec3 viewPos;
@@ -66,9 +68,13 @@
 		vec3 norm = normalize(Normal);
 		vec3 viewDir = normalize(viewPos - FragPos);
 
-		vec3 result = CalcPointLight(pointlight, norm, viewDir);
-
-		FragColor = vec4(CalcSpotLight(spotlight, norm, viewDir), 1.0);
+		vec3 result = CalcDirLight(dirlight, norm, viewDir);
+		for (int i = 0; i < NUM_POINTS; i++)
+		{
+			result += CalcPointLight(points[i], norm, viewDir);
+		}
+		result += CalcSpotLight(spotlight, norm, viewDir);
+		FragColor = vec4(result, 1.0);
 	};
 
 	vec3 CalcDirLight(DirLight light, vec3 norm, vec3 viewDir)

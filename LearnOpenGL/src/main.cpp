@@ -11,6 +11,7 @@
 #include "shader.h"
 #include "camera.h"
 #include "filesystem.h"
+#include "light.h"
 #include "private.h" //for system files and stuff, comments where this is used and will need replaced with your own stuff
 
 #include <iostream>
@@ -20,8 +21,11 @@ void processInput(GLFWwindow* window);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-glm::mat3 mat4tomat3(glm::mat4 fourMatrix);
 unsigned int loadTexture(char const* path);
+glm::mat3 mat4tomat3(glm::mat4 fourMatrix);
+float randFloatInRange(float low, float high);
+glm::vec3 randVec3InRange(float low, float high);
+glm::vec3 randVec3InRange(float xlow, float xhigh, float ylow, float yhigh, float zlow, float zhigh);
 
 const unsigned int SCR_WIDTH = 920;
 const unsigned int SCR_HEIGHT = 690;
@@ -31,6 +35,12 @@ float mixValue = 0.0f;
 //stuff to keep movement speed constant across different hardware
 float deltaTime = 0.0f; //time between last and current frames
 float lastFrame = 0.0f;
+
+//light stuff
+//attenuation
+//const float A = 0.0032;
+//const float B = 0.09;
+//const float C = 1.0;
 
 //camera stuff
 Camera camera(glm::vec3(5.0f, 5.0f, 2.0f));
@@ -247,11 +257,29 @@ int main() {
 	float lightSpeed = 0.5f;
 
 	float shininess = 32.0f;
-	float ambientStrength = 0.02f;
-	float diffuseStrength = 0.5f;
-	float specularStrength = 0.75f;
+	float ambientStrength = 0.01f;
+	float diffuseStrength = 0.25f;
+	float specularStrength = 0.5f;
 
-	while (!glfwWindowShouldClose(window))//glfwWindowShouldClose checks if it's been instructed to close
+	//light creation
+	//direction lights
+	glm::vec3 white = glm::vec3(1.0, 1.0, 1.0);
+	DirectionLight sun = DirectionLight(ambientStrength * white, diffuseStrength * white, specularStrength * white, glm::vec3(1.0, 1.0, -1.0));
+
+	//point lights
+	const unsigned int numPoints = 5;
+	PointLight points[numPoints];
+	for (unsigned int i = 0; i < numPoints; i++)
+	{
+		glm::vec3 color = randVec3InRange(0.8, 1.0);
+		glm::vec3 initialPosition = randVec3InRange(-10.0, 10.0, -10.0, 10.0, 0.0, 10.0);
+		points[i] = PointLight(ambientStrength * color, color, white, initialPosition, A, B, C);
+	}
+	//spotlights
+	glm::vec3 spotlightColor = white;
+	SpotLight spotlight = SpotLight(ambientStrength * spotlightColor, diffuseStrength * spotlightColor, specularStrength * white, origin, origin, 12.5f, 15.0f, A, B, C);
+
+	while (!glfwWindowShouldClose(window)) //starting to get a little unreadable, perhaps we should condense this a bit with some functions
 	{
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
@@ -265,38 +293,53 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-		glm::vec3 lightPosition = glm::vec3(lightRadius * sin(glfwGetTime() * lightSpeed), lightRadius * cos(glfwGetTime()* lightSpeed), 3.0 * sin(glfwGetTime() * lightSpeed * 1.7) + 5.0);
+		glm::vec3 lightPosition = glm::vec3(lightRadius * sin(glfwGetTime() * lightSpeed), lightRadius * cos(glfwGetTime()* lightSpeed), 3.0 * sin(glfwGetTime() * lightSpeed * 1.7));
 		glm::vec3 lightColor = glm::vec3(1.0f - mixValue);
 
 		cubeShader.use();
 		cubeShader.setFloat("mixValue", mixValue);
-		//cubeShader.setVec3("lightColor", lightColor);
-		//cubeShader.setVec3("lightPos", lightPos);
 		cubeShader.setVec3("viewPos", camera.position);
-		//cubeShader.setFloat("shininess", shininess);
 
-		/*cubeShader.setFloat("material.shininess", shininess);
-		cubeShader.setVec3("material.ambient", cubeCol[0]);
-		cubeShader.setVec3("material.diffuse", cubeCol[0]);
-		cubeShader.setVec3("material.specular", cubeCol[0]);*/
+		//direction light
+		cubeShader.setVec3("dirlight.direction", sun.direction);
+		cubeShader.setVec3("dirlight.ambient", sun.ambient);
+		cubeShader.setVec3("dirlight.diffuse", sun.diffuse);
+		cubeShader.setVec3("dirlight.specular", sun.specular);
 
-		cubeShader.setVec3("spotlight.position", camera.position);
-		cubeShader.setVec3("spotlight.direction", camera.front);
-		cubeShader.setFloat("spotlight.cutOff", glm::cos(glm::radians(15.0f)));
-		cubeShader.setFloat("spotlight.outerCutOff", glm::cos(glm::radians(18.0f)));
+		//point lights (not optimized)
+		cubeShader.setInt("numPoints", numPoints);
+		for (int i = 0; i < numPoints; i++)
+		{
+			std::string name = "points[" + std::to_string(i) + "].";
+			glm::vec3 position = points[i].position + lightPosition;
+			cubeShader.setVec3(name + "position", position);
 
+			cubeShader.setFloat(name + "a", points[i].a);
+			cubeShader.setFloat(name + "b", points[i].b);
+			cubeShader.setFloat(name + "c", points[i].c);
+			
+			cubeShader.setVec3(name + "ambient",  points[i].ambient);
+			cubeShader.setVec3(name + "diffuse",  points[i].diffuse  *  diffuseStrength);
+			cubeShader.setVec3(name + "specular", points[i].specular * specularStrength);
+		}
 
-		glm::vec3 lightAmbient = ambientStrength * lightColor;
-		cubeShader.setVec3("spotlight.ambient", lightAmbient);
-		glm::vec3 lightDiffuse = diffuseStrength * lightColor;
-		cubeShader.setVec3("spotlight.diffuse", lightDiffuse);
-		cubeShader.setVec3("spotlight.specular", lightColor);
+		//spotlight
+		spotlight.position = camera.position;
+		spotlight.direction = camera.front;
+		cubeShader.setVec3("spotlight.position", spotlight.position);
+		cubeShader.setVec3("spotlight.direction", spotlight.direction);
+		cubeShader.setFloat("spotlight.cutOff", spotlight.innerCutOff);
+		cubeShader.setFloat("spotlight.outerCutOff", spotlight.outerCutOff);
 
-		//attenuation stuff
-		cubeShader.setFloat("spotlight.a", 0.0032f);
-		cubeShader.setFloat("spotlight.b", 0.009f);
-		cubeShader.setFloat("spotlight.c", 1.0f);
+		cubeShader.setFloat("spotlight.a", spotlight.a);
+		cubeShader.setFloat("spotlight.b", spotlight.b);
+		cubeShader.setFloat("spotlight.c", spotlight.c);
 
+		cubeShader.setVec3("spotlight.ambient", spotlight.ambient);
+		cubeShader.setVec3("spotlight.diffuse", spotlight.diffuse);
+		cubeShader.setVec3("spotlight.specular", spotlight.specular);
+
+		//Vertices -> Window stuff
 		glm::mat4 projection = glm::perspective(camera.zoom, (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		cubeShader.setMat4("projection", projection);
 
@@ -306,6 +349,7 @@ int main() {
 		glm::mat4 cubeModel = glm::mat4(1.0f);
 		cubeShader.setMat4("model", cubeModel);
 
+		//Texturing
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, diffuseMap);
 		glActiveTexture(GL_TEXTURE1);
@@ -333,17 +377,21 @@ int main() {
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
-		//light cube
+		//lights
 		lightShader.use();
-		lightShader.setVec3("lightColor", lightColor);
 		lightShader.setFloat("mixValue", mixValue);
 		lightShader.setMat4("projection", projection);
 		lightShader.setMat4("view", view);
-		glm::mat4 lightModel = glm::mat4(1.0f);
-		lightModel = glm::translate(lightModel, lightPosition);
-		lightShader.setMat4("model", lightModel);
-		glBindVertexArray(lightVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		for (int i = 0; i < numPoints; i++)
+		{
+			lightShader.setVec3("lightColor", points[i].diffuse);
+			glm::mat4 lightModel = glm::mat4(1.0f);
+			glm::vec3 position = points[i].position + lightPosition;
+			lightModel = glm::translate(lightModel, position);
+			lightShader.setMat4("model", lightModel);
+			glBindVertexArray(lightVAO);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 
 		//axes
 		if (axesOn)
@@ -445,25 +493,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 	camera.processMouseMovement(xoffset, yoffset);
 }
-//should probably move elsewhere
-//obtains upper left 3x3 matrix of a 4x4 matrix so we don't have to calculate the normal matrix for each vertex
-glm::mat3 mat4tomat3(glm::mat4 fourMat)
-{
-	float threeVals[9];
-	const float* pSource = (const float*)glm::value_ptr(fourMat);
-	unsigned int j = 0;
-	for (unsigned int i = 0; i < 9; i++)
-	{
-		if ((j + 1) % 4 == 0)
-		{
-			j++;
-		}
-		threeVals[i] = pSource[j];
-		j++;
-	}
-	glm::mat3 newMat = glm::make_mat3(threeVals);
-	return newMat;
-}
 unsigned int loadTexture(char const* path)
 {
 	unsigned int textureID;
@@ -499,4 +528,39 @@ unsigned int loadTexture(char const* path)
 	}
 	stbi_image_free(data);
 	return textureID;
+}
+//should probably move elsewhere
+//obtains upper left 3x3 matrix of a 4x4 matrix so we don't have to calculate the normal matrix for each vertex
+glm::mat3 mat4tomat3(glm::mat4 fourMat)
+{
+	float threeVals[9];
+	const float* pSource = (const float*)glm::value_ptr(fourMat);
+	unsigned int j = 0;
+	for (unsigned int i = 0; i < 9; i++)
+	{
+		if ((j + 1) % 4 == 0)
+		{
+			j++;
+		}
+		threeVals[i] = pSource[j];
+		j++;
+	}
+	glm::mat3 newMat = glm::make_mat3(threeVals);
+	return newMat;
+}
+float randFloatInRange(float low, float high)
+{
+	return low + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (high - low)));
+}
+glm::vec3 randVec3InRange(float low, float high)
+{
+	return glm::vec3(randFloatInRange(low, high), 
+					 randFloatInRange(low, high), 
+					 randFloatInRange(low, high));
+}
+glm::vec3 randVec3InRange(float xlow, float xhigh, float ylow, float yhigh, float zlow, float zhigh)
+{
+	return glm::vec3(randFloatInRange(xlow, xhigh),
+					 randFloatInRange(ylow, yhigh),
+					 randFloatInRange(zlow, zhigh));
 }

@@ -5,6 +5,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+const glm::vec3 origin = glm::vec3(0.0, 0.0, 0.0);
+const glm::vec3 white = glm::vec3(1.0, 1.0, 1.0);
+const float A = 0.0032;
+const float B = 0.09;
+const float C = 1.0;
+
 class Light
 {
 public:
@@ -18,29 +24,33 @@ public:
 		diffuse = setDiffuse;
 		specular = setSpecular;
 	}
-	virtual void something() = 0; //to make light abstract
 };
 
-class Direction : public Light {
+class DirectionLight : public Light {
 public:
 	glm::vec3 direction;
-	Direction(glm::vec3 setAmbient, glm::vec3 setDiffuse, glm::vec3 setSpecular,
-		glm::vec3 setDirection)
+	DirectionLight(glm::vec3 setAmbient, glm::vec3 setDiffuse, glm::vec3 setSpecular,
+				   glm::vec3 setDirection)
 		: Light(setAmbient, setDiffuse, setSpecular)
 	{
 		direction = setDirection;
 	}
 };
-class Point : public Light {
+class PointLight : public Light {
 public:
 	glm::vec3 position;
 	float a;
 	float b;
 	float c;
 
-	Point(glm::vec3 setAmbient, glm::vec3 setDiffuse, glm::vec3 setSpecular,
-		glm::vec3 setPosition, float setA, float setB, float setC)
-	: Light(setAmbient, setDiffuse, setSpecular)
+	PointLight(glm::vec3 setAmbient  = origin, 
+			   glm::vec3 setDiffuse  = origin, 
+			   glm::vec3 setSpecular = white,
+			   glm::vec3 setPosition = origin, 
+			   float setA = A, 
+			   float setB = B, 
+			   float setC = C)
+		: Light(setAmbient, setDiffuse, setSpecular)
 	{
 		position = setPosition;
 		a = setA;
@@ -48,7 +58,7 @@ public:
 		c = setC;
 	}
 };
-class Spot : public Light {
+class SpotLight : public Light {
 public:
 	glm::vec3 position;
 	glm::vec3 direction;
@@ -59,11 +69,11 @@ public:
 	float b;
 	float c;
 
-	Spot(glm::vec3 setAmbient, glm::vec3 setDiffuse, glm::vec3 setSpecular,
-		glm::vec3 setPosition, glm::vec3 setDirection,
-		float setInnerCutOff, float setOuterCutOff,
-		float setA, float setB, float setC)
-	: Light(setAmbient, setDiffuse, setSpecular)
+	SpotLight(glm::vec3 setAmbient, glm::vec3 setDiffuse, glm::vec3 setSpecular,
+			  glm::vec3 setPosition, glm::vec3 setDirection,
+			  float setInnerCutOff, float setOuterCutOff,
+			  float setA, float setB, float setC)
+		: Light(setAmbient, setDiffuse, setSpecular)
 	{
 		position = setPosition;
 		direction = setDirection;
