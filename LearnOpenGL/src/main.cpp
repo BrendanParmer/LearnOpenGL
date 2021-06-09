@@ -310,7 +310,7 @@ int main() {
 		cubeShader.setInt("numPoints", numPoints);
 		for (int i = 0; i < numPoints; i++)
 		{
-			std::string name = "points[" + std::to_string(i) + "].";
+			std::string name = "points[" + std::to_string(i) + "]."; //might wanna make something like this a function
 			glm::vec3 position = points[i].position + lightPosition;
 			cubeShader.setVec3(name + "position", position);
 
