@@ -18,22 +18,22 @@ public:
 	glm::vec3 diffuse;
 	glm::vec3 specular;
 
-	Light(glm::vec3 setAmbient, glm::vec3 setDiffuse, glm::vec3 setSpecular)
+	Light(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular)
 	{
-		ambient = setAmbient;
-		diffuse = setDiffuse;
-		specular = setSpecular;
+		this->ambient = ambient;
+		this->diffuse = diffuse;
+		this->specular = specular;
 	}
 };
 
 class DirectionLight : public Light {
 public:
 	glm::vec3 direction;
-	DirectionLight(glm::vec3 setAmbient, glm::vec3 setDiffuse, glm::vec3 setSpecular,
-				   glm::vec3 setDirection)
-		: Light(setAmbient, setDiffuse, setSpecular)
+	DirectionLight(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular,
+				   glm::vec3 direction)
+		: Light(ambient, diffuse, specular)
 	{
-		direction = setDirection;
+		this->direction = direction;
 	}
 };
 class PointLight : public Light {
@@ -43,19 +43,19 @@ public:
 	float b;
 	float c;
 
-	PointLight(glm::vec3 setAmbient  = origin, 
-			   glm::vec3 setDiffuse  = origin, 
-			   glm::vec3 setSpecular = white,
-			   glm::vec3 setPosition = origin, 
-			   float setA = A, 
-			   float setB = B, 
-			   float setC = C)
-		: Light(setAmbient, setDiffuse, setSpecular)
+	PointLight(glm::vec3 ambient  = origin, 
+			   glm::vec3 diffuse  = origin, 
+			   glm::vec3 specular = white,
+			   glm::vec3 position = origin, 
+			   float a = A, 
+			   float b = B, 
+			   float c = C)
+		: Light(ambient, diffuse, specular)
 	{
-		position = setPosition;
-		a = setA;
-		b = setB;
-		c = setC;
+		this->position = position;
+		this->a = a;
+		this->b = b;
+		this->c = c;
 	}
 };
 class SpotLight : public Light {

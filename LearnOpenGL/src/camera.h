@@ -36,20 +36,20 @@ public:
 	float mouseSensitivity;
 	float zoom;
 
-	Camera(glm::vec3 setPosition = glm::vec3(10.0f, 10.0f, 10.0f),
-		glm::vec3 setWorldUp = glm::vec3(0.0f, 0.0f, 1.0f),
-		float setYaw = YAW,
-		float setPitch = PITCH)
+	Camera(glm::vec3 position = glm::vec3(10.0f, 10.0f, 10.0f),
+		glm::vec3 worldUp = glm::vec3(0.0f, 0.0f, 1.0f),
+		float yaw = YAW,
+		float pitch = PITCH)
 		:
 		front(glm::vec3(0.0f, 1.0f, 0.0f)),
 		movementSpeed(SPEED),
 		mouseSensitivity(SENSITIVITY),
 		zoom(ZOOM)
 	{
-		position = setPosition;
-		worldUp = setWorldUp;
-		yaw = setYaw;
-		pitch = setPitch;
+		this->position = position;
+		this->worldUp = worldUp;
+		this->yaw = yaw;
+		this->pitch = pitch;
 		updateCameraVectors();
 	}
 	glm::mat4 getViewMatrix()
