@@ -37,10 +37,6 @@ float deltaTime = 0.0f; //time between last and current frames
 float lastFrame = 0.0f;
 
 //light stuff
-//attenuation
-//const float A = 0.0032;
-//const float B = 0.09;
-//const float C = 1.0;
 
 //camera stuff
 Camera camera(glm::vec3(5.0f, 5.0f, 2.0f));
@@ -220,18 +216,12 @@ int main() {
 	glm::vec3 cubePos[numCubes];
 	for (int i = 0; i < numCubes; i++) 
 	{
-		float cubex = -posHigh + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (2 * posHigh - posLow)));
-		float cubey = -posHigh + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (2 * posHigh - posLow)));
-		float cubez = posLow + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (posHigh - posLow)));
-		cubePos[i] = glm::vec3(cubex, cubey, cubez);
+		cubePos[i] = randVec3InRange(-posHigh, posHigh, -posHigh, posHigh, posLow, posHigh);
 	}
 	glm::vec3 cubeCol[numCubes];
 	for (int i = 0; i < numCubes; i++) 
 	{
-		float oColorR = 0.5f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / -0.5f));
-		float oColorG = 0.5f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / -0.5f));
-		float oColorB = 0.5f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / -0.5f));
-		cubeCol[i] = glm::vec3(oColorR, oColorG, oColorB);
+		cubeCol[i] = randVec3InRange(0.5f, 1.0f);
 	}
 
 	float scaleLow = 0.75f;
@@ -257,21 +247,21 @@ int main() {
 
 	float shininess = 32.0f;
 	float ambientStrength = 0.01f;
-	float diffuseStrength = 0.25f;
-	float specularStrength = 0.5f;
+	float diffuseStrength = 0.2f;
+	float specularStrength = 0.0f;
 
 	//light creation
 	//direction lights
 	glm::vec3 white = glm::vec3(1.0, 1.0, 1.0);
-	DirectionLight sun = DirectionLight(ambientStrength * white, diffuseStrength * white, specularStrength * white, glm::vec3(1.0, 1.0, -1.0));
+	DirectionLight sun = DirectionLight(ambientStrength * white, diffuseStrength * white, specularStrength * white, glm::vec3(0.0, 0.0, -1.0));
 
 	//point lights
-	const unsigned int numPoints = 5;
+	const unsigned int numPoints = 10;
 	PointLight points[numPoints];
 	for (unsigned int i = 0; i < numPoints; i++)
 	{
 		glm::vec3 color = randVec3InRange(0.8, 1.0);
-		glm::vec3 initialPosition = randVec3InRange(-10.0, 10.0, -10.0, 10.0, 0.0, 10.0);
+		glm::vec3 initialPosition = randVec3InRange(-10.0, 10.0, -10.0, 10.0, 4.0, 6.0);
 		points[i] = PointLight(ambientStrength * color, color, white, initialPosition, A, B, C);
 	}
 	//spotlights
@@ -292,7 +282,7 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-		glm::vec3 lightPosition = glm::vec3(lightRadius * sin(glfwGetTime() * lightSpeed), lightRadius * cos(glfwGetTime()* lightSpeed), 3.0 * sin(glfwGetTime() * lightSpeed * 1.7));
+		glm::vec3 lightPosition = glm::vec3(lightRadius * sin(glfwGetTime() * lightSpeed), lightRadius * cos(glfwGetTime()* lightSpeed), 3.0 * sin(glfwGetTime() * lightSpeed * 1.7 + 2.0));
 		glm::vec3 lightColor = glm::vec3(1.0f - mixValue);
 
 		cubeShader.use();

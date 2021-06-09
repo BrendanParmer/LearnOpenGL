@@ -53,7 +53,7 @@
 
 	uniform Material material;
 	uniform DirLight dirlight;
-	#define NUM_POINTS 5 //figure out how to conenct this with numPoints in main.cpp
+	#define NUM_POINTS 10 //figure out how to conenct this with numPoints in main.cpp
 	uniform PointLight points[NUM_POINTS];
 	uniform SpotLight spotlight;
 
@@ -68,7 +68,8 @@
 		vec3 norm = normalize(Normal);
 		vec3 viewDir = normalize(viewPos - FragPos);
 
-		vec3 result = CalcDirLight(dirlight, norm, viewDir);
+		//vec3 result = CalcDirLight(dirlight, norm, viewDir);
+		vec3 result = vec3(0.0, 0.0, 0.0);
 		for (int i = 0; i < NUM_POINTS; i++)
 		{
 			result += CalcPointLight(points[i], norm, viewDir);
@@ -92,7 +93,7 @@
 		float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
 		vec3 specular = light.specular * vec3(texture(material.diffuse, TexCoords));
 
-		return ambient + diffuse + specular;
+		return (ambient + diffuse + specular);
 	}
 
 	vec3 CalcPointLight(PointLight light, vec3 norm, vec3 viewDir) {
@@ -117,7 +118,7 @@
 		diffuse  *= attenuation;
 		specular *= attenuation;
 
-		return ambient + diffuse + specular;
+		return (ambient + diffuse + specular);
 	}
 
 	vec3 CalcSpotLight(SpotLight light, vec3 norm, vec3 viewDir) {
@@ -146,5 +147,5 @@
 		diffuse  *= attenuation;
 		specular *= attenuation;
 
-		return ambient + diffuse + specular;
+		return (ambient + diffuse + specular);
 	}
