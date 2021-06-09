@@ -20,6 +20,9 @@
     <Filter Include="Source Files\src">
       <UniqueIdentifier>{091b2782-750f-406d-bd7b-0a40cd5216a3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\src\object">
+      <UniqueIdentifier>{d783cf50-0348-40d6-9235-150ab7dbb760}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Documents\OpenGL\Include\src\glad.c">
@@ -50,6 +53,9 @@
     </ClInclude>
     <ClInclude Include="src\light.h">
       <Filter>Source Files\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\object\mesh.h">
+      <Filter>Source Files\src\object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

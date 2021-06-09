@@ -89,7 +89,6 @@ int main() {
 	Shader lightShader("shaders/cube.vert", "shaders/light.frag");
 	Shader axesShader("shaders/axes.vert", "shaders/axes.frag");
 
-
 	//c u b e
 	float cube[] = {
 		// positions          // normals           // texture coords
