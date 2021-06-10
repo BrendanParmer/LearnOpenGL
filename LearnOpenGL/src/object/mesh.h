@@ -21,6 +21,7 @@ struct Vertex {
 struct Texture {
 	unsigned int id;
 	string type; //diffuse, specular, emission
+	string path;
 };
 class Mesh 
 {
