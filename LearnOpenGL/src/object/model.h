@@ -19,7 +19,7 @@
 class Model
 {
 public:
-	Model(char* path)
+	Model(const char* path)
 	{
 		loadModel(path);
 	}
@@ -150,6 +150,25 @@ private:
 			}
 		}
 		return textures;
+	}
+	Material loadMaterial(aiMaterial* mat) {
+		Material material;
+		aiColor3D color(0.f, 0.f, 0.f);
+		float shininess;
+
+		mat->Get(AI_MATKEY_COLOR_DIFFUSE, color);
+		material.diffuse = glm::vec3(color.r, color.b, color.g);
+
+		mat->Get(AI_MATKEY_COLOR_AMBIENT, color);
+		material.ambient = glm::vec3(color.r, color.b, color.g);
+
+		mat->Get(AI_MATKEY_COLOR_SPECULAR, color);
+		material.specular = glm::vec3(color.r, color.b, color.g);
+
+		mat->Get(AI_MATKEY_SHININESS, shininess);
+		material.shininess = shininess;
+
+		return material;
 	}
 	unsigned int TextureFromFile(const char* path, const string& directory)
 	{

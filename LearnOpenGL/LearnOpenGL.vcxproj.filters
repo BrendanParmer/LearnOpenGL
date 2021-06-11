@@ -80,6 +80,12 @@
     <None Include="shaders\cube.frag">
       <Filter>Source Files\shaders</Filter>
     </None>
+    <None Include="shaders\model.vert">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="shaders\model.frag">
+      <Filter>Source Files\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\blue.png">

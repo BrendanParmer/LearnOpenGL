@@ -2,7 +2,7 @@
 #include <GLFW/glfw3.h>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+//#include "stb_image.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -12,6 +12,7 @@
 #include "camera.h"
 #include "filesystem.h"
 #include "light.h"
+#include "object/model.h"
 #include "private.h" //for system files and stuff, comments where this is used and will need replaced with your own stuff
 
 #include <iostream>
@@ -82,6 +83,7 @@ int main() {
 	glEnable(GL_DEPTH_TEST); 
 
 	Shader cubeShader("shaders/cube.vert", "shaders/cube.frag");
+	Shader modelShader("shaders/model.vert", "shaders/model.frag");
 	Shader lightShader("shaders/cube.vert", "shaders/light.frag");
 	Shader axesShader("shaders/axes.vert", "shaders/axes.frag");
 
@@ -165,6 +167,10 @@ int main() {
 	cubeShader.setInt("material.diffuse", 0);
 	cubeShader.setInt("material.specular", 1);
 	cubeShader.setInt("material.emission", 2);
+
+	//model
+	//stbi_set_flip_vertically_on_load(true);
+	Model suzanne(suzannePath.c_str());
 
 	//light
 	unsigned int lightVAO;
@@ -350,21 +356,31 @@ int main() {
 
 		for (unsigned int i = 0; i < numCubes; i++)
 		{
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePos[i]);
-			model = glm::scale(model, cubeScale[i]);
+			glm::mat4 cubeModel = glm::mat4(1.0f);
+			cubeModel = glm::translate(cubeModel, cubePos[i]);
+			cubeModel = glm::scale(cubeModel, cubeScale[i]);
 			float angle = 1.1f * i;
-			model = glm::rotate(model, (float)glfwGetTime() * cubeSpeed[i] + angle, glm::vec3(0.5f, 1.0f, 0.0f));
-			cubeShader.setMat4("model", model);
+			cubeModel = glm::rotate(cubeModel, (float)glfwGetTime() * cubeSpeed[i] + angle, glm::vec3(0.5f, 1.0f, 0.0f));
+			cubeShader.setMat4("model", cubeModel);
 			//cubeShader.setVec3("objectColor", cubeCol[i]);
 
-			glm::mat3 normalMatrix = glm::transpose(glm::inverse(mat4tomat3(model)));
+			glm::mat3 normalMatrix = glm::transpose(glm::inverse(mat4tomat3(cubeModel)));
 			cubeShader.setMat3("normalMatrix", normalMatrix);
 
 			cubeShader.setFloat("material.shininess", shininess);
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
+
+		//model
+		modelShader.use();
+		modelShader.setMat4("projection", projection);
+		modelShader.setMat4("view", view);
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::rotate(model, (float)glm::radians(90.0), glm::vec3(1.0f, 0.0, 0.0));
+		model = glm::rotate(model, (float)glm::radians(135.0), glm::vec3(0.0f, 1.0f, 0.0f)); //seems like rotation is still treating this as a y-up system. do we just cave in??
+		modelShader.setMat4("model", model);
+		suzanne.Draw(modelShader);
 
 		//lights
 		lightShader.use();
