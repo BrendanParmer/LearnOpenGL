@@ -168,6 +168,7 @@
     <ClInclude Include="src\object\model.h" />
     <ClInclude Include="src\private.h" />
     <ClInclude Include="src\shader.h" />
+    <ClInclude Include="src\voxelization.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\axes.frag" />

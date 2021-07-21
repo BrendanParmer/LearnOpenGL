@@ -60,6 +60,9 @@
     <ClInclude Include="src\object\model.h">
       <Filter>Source Files\src\object</Filter>
     </ClInclude>
+    <ClInclude Include="src\voxelization.h">
+      <Filter>Source Files\src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\axes.frag">
