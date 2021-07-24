@@ -9,6 +9,7 @@
 void voxelizeTriangle(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2);
 glm::ivec3 voxelizePoint(glm::vec3 p);
 void sortByAxis(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2);
+void sortThreeIntPoints(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2, unsigned int axis);
 void ILV(glm::ivec3 P0, glm::ivec3 P1);
 void fillInterior(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2);
 
@@ -48,12 +49,25 @@ void sortByAxis(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2)
 		max = z;
 
 	if (max == x)
-		printf("x"); //todo: actually swap values lol
+		sortThreeIntPoints(P0, P1, P2, 0);
 	if (max == y)
-		printf("y");
+		sortThreeIntPoints(P0, P1, P2, 1);
 	if (max == z)
-		printf("z");
+		sortThreeIntPoints(P0, P1, P2, 2);
 } 
+/*
+	lol dumb function but i didn't wanna copy-paste
+*/
+void sortThreeIntPoints(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2, unsigned int axis)
+{
+
+	if (P0[axis] > P1[axis])
+		std::swap(P0[axis], P1[axis]);
+	if (P0[axis] > P2[axis])
+		std::swap(P0[axis], P2[axis]);
+	if (P1[axis] > P2[axis])
+		std::swap(P1[axis], P2[axis]);
+}
 void ILV(glm::ivec3 P0, glm::ivec3 P1)
 {
 
