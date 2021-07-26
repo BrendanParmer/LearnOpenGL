@@ -1,3 +1,37 @@
+/*
+MUSINGS
+	-would it be more efficient if we converted all the vertices to their voxels first,
+	reconnected the mesh, and then filled it in?
+		-how would we make sure we refilled the mesh right? (ex. holes)
+			-might be why i haven't come across methods like this (as they would require intersection tests!)
+	-learn about octrees and how they're used in voxelization
+
+TODO
+	-implement markVoxel function
+		-just have a list of ivec3s? seems awful expensive memory-wise
+		-we do need access to the x, y, and z components of previously marked voxels tho, 
+		 so maybe a list is good. perhaps separate lists for separate edges? and then after the whole
+		 triangle is voxelized we add them to the overall mesh voxel data structure
+			-I like this idea, I think it might work well. 
+			-We do need this implemented before the fillInterior algorithm can properly be finished
+	-implement fillInterior algorithm
+	-implement way to do this for every triangle in mesh. may be difficult because of index nonsense.
+	
+	(separate header file so voxelization stays kinda general?)
+	-implement voxel data structure to cubes function 
+	-implement cross-section viewer
+		-probably should optimize so we only draw the 2D component (4 vertices) instead of
+		 the whole cube (8 vertices), since we only need to see the top anyways
+			-might get tricky if we want a smooth transition from 2D to 3D
+			-does this matter if we're ultimately making this a Blender add-on anyways?
+				-let's be real this engine's pretty crappy lol
+	-figure out way to visualize difference between -1, 0 (current), and +1 cross sections
+		-probably involves using color and alpha channels
+
+*/
+
+
+
 #ifndef VOXELIZATION_H
 #define VOXELIZATION_H
 
@@ -9,12 +43,15 @@ typedef unsigned int axis; //x=0, y=1, z=2
 
 void voxelizeTriangle(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2);
 glm::ivec3 voxelizePoint(glm::vec3 p);
-void sortByAxis(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2);
+axis dominantAxis(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2);
 void sortThreeIntPoints(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2, axis anAxis);
 void ILV(glm::ivec3 P0, glm::ivec3 P1);
 void fillInterior(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2);
 void markVoxel(glm::ivec3 P);
 
+/*
+* function that voxelizes a triangle given three floating point vertices
+*/
 void voxelizeTriangle(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2)
 {
 	glm::ivec3 P0 = voxelizePoint(p0);
@@ -29,10 +66,14 @@ void voxelizeTriangle(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2)
 	*/
 	
 	axis domAxis = dominantAxis(P0, P1, P2);
-
 	sortThreeIntPoints(P0, P1, P2, domAxis);
 
+	ILV(P0, P1);
+	ILV(P0, P2);
+	ILV(P1, P2);
+
 }
+
 /*
 *	Function to assign a 3D vector composed of floats to a voxel
 */
@@ -42,7 +83,6 @@ glm::ivec3 voxelizePoint(glm::vec3 p)
 					  static_cast<int>(p.y + 0.5f),
 					  static_cast<int>(p.z + 0.5f));
 }
-
 
 /*
 *	approximates the dominant axis by taking the cross product of the 
@@ -115,18 +155,11 @@ void ILV(glm::ivec3 P0, glm::ivec3 P1)
 		markVoxel(currentP);
 	}
 }
+
 void fillInterior(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2)
 {
 
 }
-/*
-TODO: actually figure out how to implement this.
-I imagine it'll probably be different in this OpenGL engine and Blender
-But maybe not
-
-	-look up octrees and advantages of using them? i remember them being involved somehow
-	-incorporate cube spawning stuff here too? might not be too difficult, just instance a cube at each point
-*/
 void markVoxel(glm::ivec3 P)
 {
 
