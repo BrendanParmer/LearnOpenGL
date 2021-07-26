@@ -5,11 +5,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+typedef unsigned int axis; //x=0, y=1, z=2
 
 void voxelizeTriangle(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2);
 glm::ivec3 voxelizePoint(glm::vec3 p);
 void sortByAxis(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2);
-void sortThreeIntPoints(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2, unsigned int axis);
+void sortThreeIntPoints(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2, axis anAxis);
 void ILV(glm::ivec3 P0, glm::ivec3 P1);
 void fillInterior(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2);
 void markVoxel(glm::ivec3 P);
@@ -26,7 +27,10 @@ void voxelizeTriangle(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2)
 	markVoxel(P1);
 	markVoxel(P2);
 	*/
+	
+	axis domAxis = dominantAxis(P0, P1, P2);
 
+	sortThreeIntPoints(P0, P1, P2, domAxis);
 
 }
 /*
@@ -39,45 +43,49 @@ glm::ivec3 voxelizePoint(glm::vec3 p)
 					  static_cast<int>(p.z + 0.5f));
 }
 
+
 /*
-* reorders voxeled vertices by the triangle's dominant axis
+*	approximates the dominant axis by taking the cross product of the 
+*	integer approximations of the edge vectors, determined by voxelized
+*	vertex vectors
 */
-void sortByAxis(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2)
+axis dominantAxis(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2)
 {
-	//triangle edges
 	glm::ivec3 E0 = P0 - P1;
 	glm::ivec3 E1 = P0 - P2;
 
-	//determine what coordinate-axis the normal is most aligned with
 	int x = E0.y * E1.z - E0.z * E1.y;
 	int max = x;
-	int y = E0.z*E1.x - E0.x*E1.z;
+	int y = E0.z * E1.x - E0.x * E1.z;
 	if (max < y)
 		max = y;
-	int z = E0.x*E1.y - E0.y*E1.x;
+	int z = E0.x * E1.y - E0.y * E1.x;
 	if (max < z)
 		max = z;
 
 	if (max == x)
-		sortThreeIntPoints(P0, P1, P2, 0);
+		return 0;
 	if (max == y)
-		sortThreeIntPoints(P0, P1, P2, 1);
+		return 1;
 	if (max == z)
-		sortThreeIntPoints(P0, P1, P2, 2);
-} 
+		return 2;
+}
+
 /*
-	lol dumb function but i didn't wanna copy-paste
+	helper function that reassigns ordering based on a given axis
+	maybe unnecessary now that we've reordered where we determine the dominant axis
 */
-void sortThreeIntPoints(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2, unsigned int axis)
+void sortThreeIntPoints(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2, axis swapAxis)
 {
 
-	if (P0[axis] > P1[axis])
-		std::swap(P0[axis], P1[axis]);
-	if (P0[axis] > P2[axis])
-		std::swap(P0[axis], P2[axis]);
-	if (P1[axis] > P2[axis])
-		std::swap(P1[axis], P2[axis]);
+	if (P0[swapAxis] > P1[swapAxis])
+		std::swap(P0[swapAxis], P1[swapAxis]);
+	if (P0[swapAxis] > P2[swapAxis])
+		std::swap(P0[swapAxis], P2[swapAxis]);
+	if (P1[swapAxis] > P2[swapAxis])
+		std::swap(P1[swapAxis], P2[swapAxis]);
 }
+
 /*
 * function that voxelizes a 3D line with integer endpoints
 * isn't quite as accurate as a floating-point algorithm would be but also realtime would be nice
