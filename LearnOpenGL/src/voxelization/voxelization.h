@@ -228,13 +228,13 @@ void addVoxelToOctree(glm::ivec3 P, uint8_t depth, Octnode root)
 		//assign child
 		if (i == 1)
 		{
-			if (root.children[a] != NULL)
+			if (root.children[a] == NULL)
 				root.children[a] = new Octnode(newPoint, &main);
 			main = *root.children[a]; //doesn't seem good
 		}
 		else
 		{
-			if (main.children[a] != NULL)
+			if (main.children[a] == NULL)
 				main.children[a] = new Octnode(newPoint, &main);
 			main = *main.children[a];
 		}
