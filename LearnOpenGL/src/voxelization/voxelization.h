@@ -41,6 +41,7 @@ TODO
 #include <glm/gtc/type_ptr.hpp>
 #include "octree.h"
 #include "math.h"
+#include <list>
 
 typedef uint8_t axis; //x=0, y=1, z=2
 
@@ -49,9 +50,12 @@ glm::ivec3 voxelizePoint(glm::vec3 p);
 axis dominantAxis(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2);
 
 void sortThreeIntPoints(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2, axis anAxis);
-void ILV(glm::ivec3 P0, glm::ivec3 P1);
-void addVoxelToList(glm::ivec3 P);
-void fillInterior(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2);
+void ILV(glm::ivec3 P0, glm::ivec3 P1, std::list<glm::ivec3> list);
+void fillInterior(std::list<glm::ivec3> E1, 
+				  std::list<glm::ivec3> E2, 
+				  glm::ivec3 P0, 
+				  glm::ivec3 P2, 
+				  axis domAxis);
 
 void addVoxelToOctree(glm::ivec3 P, uint8_t depth, Octnode root);
 
@@ -76,10 +80,19 @@ void voxelizeTriangle(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2)
 	axis domAxis = dominantAxis(P0, P1, P2);
 	sortThreeIntPoints(P0, P1, P2, domAxis);
 
-	ILV(P0, P1);
-	ILV(P0, P2);
-	ILV(P1, P2);
+	std::list<glm::ivec3> E0;
+	std::list<glm::ivec3> E1;
+	std::list<glm::ivec3> E2;
 
+	ILV(P0, P1, E0);
+	ILV(P0, P2, E1);
+	ILV(P1, P2, E2);
+
+	for (glm::ivec3 x : E0)
+	{
+		E1.push_back(x);
+	}
+	fillInterior(E1, E2, P0, P2, domAxis);
 }
 
 /*
@@ -138,7 +151,7 @@ void sortThreeIntPoints(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2, axis swapAx
 * function that voxelizes a 3D line with integer endpoints
 * isn't quite as accurate as a floating-point algorithm would be but also realtime would be nice
 */
-void ILV(glm::ivec3 P0, glm::ivec3 P1)
+void ILV(glm::ivec3 P0, glm::ivec3 P1, std::list<glm::ivec3> list)
 {
 	glm::ivec3 dP = glm::ivec3(P1.x - P0.x,
 							   P1.y - P0.y,
@@ -160,19 +173,22 @@ void ILV(glm::ivec3 P0, glm::ivec3 P1)
 		currentP[min] += dP[min];
 		L -= glm::ivec3(L[min], L[min], L[min]);
 		L[min] = 2 * M[min];
-		addVoxelToList(currentP);
+		list.push_back(currentP);
 	}
 }
 
-void fillInterior(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2)
+void fillInterior(std::list<glm::ivec3> E1, 
+				  std::list<glm::ivec3> E2, 
+				  glm::ivec3 P0, 
+				  glm::ivec3 P2, 
+				  axis domAxis)
 {
+	for (uint8_t i = 0; i < P2[domAxis] - P0[domAxis]; i++)
+	{
 
+	}
 }
-//probably no longer necessary since this'll just be an append
-void addVoxelToList(glm::ivec3 P)
-{
 
-}
 /*
 	adds a voxel to an octree
 
