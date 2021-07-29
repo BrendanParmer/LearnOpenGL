@@ -165,6 +165,7 @@
     <ClInclude Include="src\camera.h" />
     <ClInclude Include="src\filesystem.h" />
     <ClInclude Include="src\light.h" />
+    <ClInclude Include="src\math.h" />
     <ClInclude Include="src\object\mesh.h" />
     <ClInclude Include="src\object\model.h" />
     <ClInclude Include="src\private.h" />

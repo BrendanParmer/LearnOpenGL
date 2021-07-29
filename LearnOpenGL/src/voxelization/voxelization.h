@@ -39,18 +39,23 @@ TODO
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <../octree.h>
+#include "octree.h"
+#include "math.h"
 
 typedef uint8_t axis; //x=0, y=1, z=2
 
 void voxelizeTriangle(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2);
 glm::ivec3 voxelizePoint(glm::vec3 p);
 axis dominantAxis(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2);
+
 void sortThreeIntPoints(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2, axis anAxis);
 void ILV(glm::ivec3 P0, glm::ivec3 P1);
-void fillInterior(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2);
 void addVoxelToList(glm::ivec3 P);
-void addVoxelToOctree(glm::ivec3 P, uint8_t depth);
+void fillInterior(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2);
+
+void addVoxelToOctree(glm::ivec3 P, uint8_t depth, Octnode root);
+
+int smallIntPow(int x, uint8_t p); //from math.h
 
 /*
 * function that voxelizes a triangle given three floating point vertices
@@ -155,7 +160,7 @@ void ILV(glm::ivec3 P0, glm::ivec3 P1)
 		currentP[min] += dP[min];
 		L -= glm::ivec3(L[min], L[min], L[min]);
 		L[min] = 2 * M[min];
-		markVoxel(currentP);
+		addVoxelToList(currentP);
 	}
 }
 
@@ -176,12 +181,64 @@ void addVoxelToList(glm::ivec3 P)
 */
 void addVoxelToOctree(glm::ivec3 P, uint8_t depth, Octnode root)
 {
-	uint8_t i = 0;
+	//bitwise little thing to keep track of which octant our point is in 
+	//relative to the main node's coordinate
+	
+	// x = 4 (100), y = 2 (010), and z = 1 (001)
+	//if the point's x-coordinate is greater than the main node's, then we put a 1 in the 4 spot
+	//this helps us avoid messy, long chains of if statements
 	uint8_t a = 0;
 
+	Octnode main = root; //root's parent is NULL
+
+	uint8_t i = 1;
 	while (i < depth)
 	{
+		//determines relative octant and sets a new point
+		int half = smallIntPow(2, depth - 1 - i);
+		glm::ivec3 newPoint = main.coordinate;
+
+		//x
+		if (P.x > main.coordinate.x)
+		{
+			a |= 4;
+			newPoint.x += half;
+		}
+		else
+			newPoint.x -= half;
+
+		//y
+		if (P.y > main.coordinate.y)
+		{
+			a |= 2;
+			newPoint.y += half;
+		}
+		else
+			newPoint.y -= half;
 		
+		//z
+		if (P.z > main.coordinate.z)\
+		{
+			a |= 1;
+			newPoint.z += half;
+		}
+		else
+			newPoint.z -= half;
+
+		//assign child
+		if (i == 1)
+		{
+			if (root.children[a] != NULL)
+				root.children[a] = new Octnode(newPoint, &main);
+			main = *root.children[a]; //doesn't seem good
+		}
+		else
+		{
+			if (main.children[a] != NULL)
+				main.children[a] = new Octnode(newPoint, &main);
+			main = *main.children[a];
+		}
+		i++;
 	}
 }
 #endif

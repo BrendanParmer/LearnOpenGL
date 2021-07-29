@@ -8,6 +8,8 @@ class Octnode
 {
 public:
 	glm::ivec3 coordinate;
+	Octnode* parent;
+	//probably better way of doing this
 	Octnode* node0;
 	Octnode* node1;
 	Octnode* node2;
@@ -17,11 +19,22 @@ public:
 	Octnode* node6;
 	Octnode* node7;
 
-	Octnode(glm::ivec3 setCoordinate)
+	Octnode* children[8] = {
+		node0,
+		node1,
+		node2,
+		node3,
+		node4,
+		node5,
+		node6,
+		node7
+	};
+
+	Octnode(glm::ivec3 setCoordinate, Octnode* setParent)
 	{
 		coordinate = setCoordinate;
+		parent = setParent;
 
-		//necessary?
 		node0 = NULL;
 		node1 = NULL;
 		node2 = NULL;
