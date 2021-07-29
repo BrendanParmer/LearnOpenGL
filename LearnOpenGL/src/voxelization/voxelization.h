@@ -16,6 +16,7 @@ TODO
 			-We do need this implemented before the fillInterior algorithm can properly be finished
 	-implement fillInterior algorithm
 	-implement way to do this for every triangle in mesh. may be difficult because of index nonsense.
+	-create custom vector class of short ints for maybe half the memory? something to test out i suppose
 	
 	(separate header file so voxelization stays kinda general?)
 	-implement voxel data structure to cubes function 
@@ -38,8 +39,9 @@ TODO
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <../octree.h>
 
-typedef unsigned int axis; //x=0, y=1, z=2
+typedef uint8_t axis; //x=0, y=1, z=2
 
 void voxelizeTriangle(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2);
 glm::ivec3 voxelizePoint(glm::vec3 p);
@@ -47,7 +49,8 @@ axis dominantAxis(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2);
 void sortThreeIntPoints(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2, axis anAxis);
 void ILV(glm::ivec3 P0, glm::ivec3 P1);
 void fillInterior(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2);
-void markVoxel(glm::ivec3 P);
+void addVoxelToList(glm::ivec3 P);
+void addVoxelToOctree(glm::ivec3 P, uint8_t depth);
 
 /*
 * function that voxelizes a triangle given three floating point vertices
@@ -160,8 +163,25 @@ void fillInterior(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2)
 {
 
 }
-void markVoxel(glm::ivec3 P)
+//probably no longer necessary since this'll just be an append
+void addVoxelToList(glm::ivec3 P)
 {
 
+}
+/*
+	adds a voxel to an octree
+
+	P: coordinates of the voxel
+	depth: user-defined depth of the octree
+*/
+void addVoxelToOctree(glm::ivec3 P, uint8_t depth, Octnode root)
+{
+	uint8_t i = 0;
+	uint8_t a = 0;
+
+	while (i < depth)
+	{
+		
+	}
 }
 #endif

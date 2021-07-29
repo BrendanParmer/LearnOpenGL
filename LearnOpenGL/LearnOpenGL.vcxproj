@@ -157,6 +157,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Documents\OpenGL\Include\src\glad.c" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\voxelization\octree.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Documents\OpenGL\Include\glad.h" />
@@ -168,7 +169,7 @@
     <ClInclude Include="src\object\model.h" />
     <ClInclude Include="src\private.h" />
     <ClInclude Include="src\shader.h" />
-    <ClInclude Include="src\voxelization.h" />
+    <ClInclude Include="src\voxelization\voxelization.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\axes.frag" />

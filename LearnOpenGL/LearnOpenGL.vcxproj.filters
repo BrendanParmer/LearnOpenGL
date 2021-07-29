@@ -23,6 +23,9 @@
     <Filter Include="Source Files\src\object">
       <UniqueIdentifier>{d783cf50-0348-40d6-9235-150ab7dbb760}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\src\voxelization">
+      <UniqueIdentifier>{71537dd9-3113-42b5-bdc4-e1165a7003e1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Documents\OpenGL\Include\src\glad.c">
@@ -30,6 +33,9 @@
     </ClCompile>
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\voxelization\octree.h">
+      <Filter>Source Files\src\voxelization</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -60,8 +66,8 @@
     <ClInclude Include="src\object\model.h">
       <Filter>Source Files\src\object</Filter>
     </ClInclude>
-    <ClInclude Include="src\voxelization.h">
-      <Filter>Source Files\src</Filter>
+    <ClInclude Include="src\voxelization\voxelization.h">
+      <Filter>Source Files\src\voxelization</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
