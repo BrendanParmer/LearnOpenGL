@@ -69,17 +69,11 @@ void voxelizeTriangle(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2)
 	glm::ivec3 P0 = voxelizePoint(p0);
 	glm::ivec3 P1 = voxelizePoint(p1);
 	glm::ivec3 P2 = voxelizePoint(p2);
-
-	//necessary since we're filling in lines?
-	/*
-	markVoxel(P0);
-	markVoxel(P1);
-	markVoxel(P2);
-	*/
 	
 	axis domAxis = dominantAxis(P0, P1, P2);
 	sortThreeIntPoints(P0, P1, P2, domAxis);
 
+	//establishes edge voxels in a linked list
 	std::list<glm::ivec3> E0;
 	std::list<glm::ivec3> E1;
 	std::list<glm::ivec3> E2;
@@ -88,11 +82,12 @@ void voxelizeTriangle(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2)
 	ILV(P0, P2, E1);
 	ILV(P1, P2, E2);
 
-	for (glm::ivec3 x : E0)
+	//creates hybrid edge
+	for (glm::ivec3 x : E2)
 	{
-		E1.push_back(x);
+		E0.push_back(x);
 	}
-	fillInterior(E1, E2, P0, P2, domAxis);
+	fillInterior(E0, E1, P0, P2, domAxis);
 }
 
 /*
@@ -177,15 +172,26 @@ void ILV(glm::ivec3 P0, glm::ivec3 P1, std::list<glm::ivec3> list)
 	}
 }
 
-void fillInterior(std::list<glm::ivec3> E1, 
-				  std::list<glm::ivec3> E2, 
+void fillInterior(std::list<glm::ivec3> E0, 
+				  std::list<glm::ivec3> E1, 
 				  glm::ivec3 P0, 
 				  glm::ivec3 P2, 
 				  axis domAxis)
 {
 	for (uint8_t i = 0; i < P2[domAxis] - P0[domAxis]; i++)
 	{
-
+		/*
+		slice? = P0[domAxis] + i + 1/2(why 1/2? wouldn't this mean floating point arithmetic?)
+		std::list<glm::ivec3> E0_slice = GetSubSequence(E0, slice)
+		std::list<glm::ivec3> E1_slice = GetSubSequence(E1, slice)
+		while (E0_slice != NULL || E1_slice != NULL)
+		{
+			startP = GetNextInSlice(E0_slice)
+			stopP = GetNextInSlice(E1_slice)
+			ILV(startP, stopP)
+		}
+		*/
+		
 	}
 }
 
