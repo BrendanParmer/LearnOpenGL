@@ -1,22 +1,13 @@
 /*
-MUSINGS
-	-would it be more efficient if we converted all the vertices to their voxels first,
-	reconnected the mesh, and then filled it in?
-		-how would we make sure we refilled the mesh right? (ex. holes)
-			-might be why i haven't come across methods like this (as they would require intersection tests!)
-	-learn about octrees and how they're used in voxelization
-
 TODO
-	-implement markVoxel function
-		-just have a list of ivec3s? seems awful expensive memory-wise
-		-we do need access to the x, y, and z components of previously marked voxels tho, 
-		 so maybe a list is good. perhaps separate lists for separate edges? and then after the whole
-		 triangle is voxelized we add them to the overall mesh voxel data structure
-			-I like this idea, I think it might work well. 
-			-We do need this implemented before the fillInterior algorithm can properly be finished
+	-separate ILV functions for adding to list vs octree? something to think about i suppose
 	-implement fillInterior algorithm
+		-learn about iterators. it's gonna be the only efficient way to go through all these lists
+
 	-implement way to do this for every triangle in mesh. may be difficult because of index nonsense.
-	-create custom vector class of short ints for maybe half the memory? something to test out i suppose
+		-perhaps not, we get easy access to every triangle in a blender mesh. in here it might be
+		more difficult
+	-create custom vector class of uint16_t's for maybe half the memory? something to test out i suppose
 	
 	(separate header file so voxelization stays kinda general?)
 	-implement voxel data structure to cubes function 
@@ -39,18 +30,25 @@ TODO
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include <stdexcept>
+#include <list>
+
 #include "octree.h"
 #include "math.h"
-#include <list>
+
 
 typedef uint8_t axis; //x=0, y=1, z=2
 
 void voxelizeTriangle(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2);
-glm::ivec3 voxelizePoint(glm::vec3 p);
-axis dominantAxis(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2);
 
+glm::ivec3 voxelizePoint(glm::vec3 p);
+
+axis dominantAxis(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2);
 void sortThreeIntPoints(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2, axis anAxis);
+
 void ILV(glm::ivec3 P0, glm::ivec3 P1, std::list<glm::ivec3> list);
+
 void fillInterior(std::list<glm::ivec3> E1, 
 				  std::list<glm::ivec3> E2, 
 				  glm::ivec3 P0, 
@@ -58,6 +56,7 @@ void fillInterior(std::list<glm::ivec3> E1,
 				  axis domAxis);
 std::list<glm::ivec3> getSubSequence(std::list<glm::ivec3> edge, axis w, int compare);
 bool lineCondition(glm::ivec3 point, axis w, int dU, int dV, int U, int V);
+
 void addVoxelToOctree(glm::ivec3 P, uint8_t depth, Octnode root);
 
 int smallIntPow(int x, uint8_t p); //from math.h
@@ -67,7 +66,7 @@ int smallIntPow(int x, uint8_t p); //from math.h
 
 
 /*
-* function that voxelizes a triangle given three floating point vertices
+* function that voxelizes a triangle given three floating point vertices, p0, p1, and p2
 */
 void voxelizeTriangle(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2)
 {
@@ -97,6 +96,8 @@ void voxelizeTriangle(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2)
 
 /*
 *	Function to assign a 3D vector composed of floats to a voxel
+* 
+*	glm::vec3 p - the point to be voxelized
 */
 glm::ivec3 voxelizePoint(glm::vec3 p)
 {
@@ -109,6 +110,8 @@ glm::ivec3 voxelizePoint(glm::vec3 p)
 *	approximates the dominant axis by taking the cross product of the 
 *	integer approximations of the edge vectors, determined by voxelized
 *	vertex vectors
+* 
+*	glm::ivec3 P0, P1, P2 - the voxelized triangle vertices
 */
 axis dominantAxis(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2)
 {
@@ -134,22 +137,27 @@ axis dominantAxis(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2)
 
 /*
 	helper function that reassigns ordering based on a given axis
-	maybe unnecessary now that we've reordered where we determine the dominant axis
+	
+	glm::ivec3 P0, P1, P2 - the voxelized triangle vertices
+	axis domAxis - the dominant axis of the triangle
 */
-void sortThreeIntPoints(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2, axis swapAxis)
+void sortThreeIntPoints(glm::ivec3 P0, glm::ivec3 P1, glm::ivec3 P2, axis domAxis)
 {
 
-	if (P0[swapAxis] > P1[swapAxis])
-		std::swap(P0[swapAxis], P1[swapAxis]);
-	if (P0[swapAxis] > P2[swapAxis])
-		std::swap(P0[swapAxis], P2[swapAxis]);
-	if (P1[swapAxis] > P2[swapAxis])
-		std::swap(P1[swapAxis], P2[swapAxis]);
+	if (P0[domAxis] > P1[domAxis])
+		std::swap(P0[domAxis], P1[domAxis]);
+	if (P0[domAxis] > P2[domAxis])
+		std::swap(P0[domAxis], P2[domAxis]);
+	if (P1[domAxis] > P2[domAxis])
+		std::swap(P1[domAxis], P2[domAxis]);
 }
 
 /*
 * function that voxelizes a 3D line with integer endpoints
-* isn't quite as accurate as a floating-point algorithm would be but also realtime would be nice
+* not perfectly accurate, but more efficient than a floating point implementation
+* 
+* glm::ivec3 P0, P1, P2 - the voxelized triangle vertices
+* std::list<glm::ivec3> list - the list that new voxels will be added to
 */
 void ILV(glm::ivec3 P0, glm::ivec3 P1, std::list<glm::ivec3> list)
 {
@@ -177,15 +185,27 @@ void ILV(glm::ivec3 P0, glm::ivec3 P1, std::list<glm::ivec3> list)
 	}
 }
 
-void fillInterior(std::list<glm::ivec3> E0, 
-				  std::list<glm::ivec3> E1, 
-				  glm::ivec3 P0, 
-				  glm::ivec3 P2, 
-				  axis domAxis)
+/*
+	function to fill the interior of the triangle
+
+	it splices the triangle by the dominant axis, creating a bunch of 2D polygons
+	then, it determines the best endpoints on opposite sides of the triangle
+	so we don't have to call ILV() more times than we need to
+
+	std::list<glm::ivec3> E0, E1 - the edges of the original triangle
+		-note: E0 is a hybrid of the original E0 and E2
+	glm::ivec3 P0, P2 - the two points connected directly by E1
+	axis domAxis - the dominant axis of the triangle
+*/
+void fllInterior(std::list<glm::ivec3> E0, 
+				 std::list<glm::ivec3> E1, 
+				 glm::ivec3 P0, 
+				 glm::ivec3 P2, 
+				 axis domAxis)
 {
 	std::list<glm::ivec3> fullTriangle;
 
-	
+	//splices triangle into 2D splices based on the dominant axis
 	for (uint8_t i = 0; i < P2[domAxis] - P0[domAxis]; i++)
 	{
 		int slice = P0[domAxis] + i;
@@ -206,6 +226,11 @@ void fillInterior(std::list<glm::ivec3> E0,
 		*/
 		
 	}
+
+	/*
+		for x in fullTriangle: //might wanna make separate ILV functions for adding to list and to Octree
+			addVoxelToOctree(x, depth, root);
+	*/
 }
 
 /*
@@ -227,6 +252,7 @@ std::list<glm::ivec3> getSubSequence(std::list<glm::ivec3> edge, axis w, int com
 	}
 		
 }
+
 /*
 	helper function to fillInterior() that determines which endpoints to draw lines at
 	if the condition is true, then we can try the next point in the list
@@ -258,6 +284,9 @@ bool lineCondition(glm::ivec3 point, axis w, int dU, int dV, int U, int V)
 		u = point.x;
 		v = point.y;
 	}
+	else
+		throw std::invalid_argument("Axis w must be 0, 1, or 2");
+
 	int compare = dV * u - dU * v;
 	return (m - n <= compare && compare <= m + n);
 	
@@ -266,8 +295,9 @@ bool lineCondition(glm::ivec3 point, axis w, int dU, int dV, int U, int V)
 /*
 	adds a voxel to an octree
 
-	P: coordinates of the voxel
-	depth: user-defined depth of the octree
+	glm::ivec3 P: coordinates of the voxel
+	uint8_t depth: user-defined depth of the octree
+	Octnode root: the root of our octree, used for easy level of detail calculations
 */
 void addVoxelToOctree(glm::ivec3 P, uint8_t depth, Octnode root)
 {
