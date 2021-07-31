@@ -56,10 +56,15 @@ void fillInterior(std::list<glm::ivec3> E1,
 				  glm::ivec3 P0, 
 				  glm::ivec3 P2, 
 				  axis domAxis);
-
+std::list<glm::ivec3> getSubSequence(std::list<glm::ivec3> edge, axis w, int compare);
+bool lineCondition(glm::ivec3 point, axis w, int dU, int dV, int U, int V);
 void addVoxelToOctree(glm::ivec3 P, uint8_t depth, Octnode root);
 
 int smallIntPow(int x, uint8_t p); //from math.h
+
+
+
+
 
 /*
 * function that voxelizes a triangle given three floating point vertices
@@ -178,21 +183,84 @@ void fillInterior(std::list<glm::ivec3> E0,
 				  glm::ivec3 P2, 
 				  axis domAxis)
 {
+	std::list<glm::ivec3> fullTriangle;
+
+	
 	for (uint8_t i = 0; i < P2[domAxis] - P0[domAxis]; i++)
 	{
+		int slice = P0[domAxis] + i;
+		std::list<glm::ivec3> sliceE0 = getSubSequence(E0, domAxis, slice);
+		std::list<glm::ivec3> sliceE1 = getSubSequence(E1, domAxis, slice);
+
+		auto E0It = sliceE0.begin();
+		
+		auto E1It = sliceE1.begin();
+		
+		ILV(*E0It, *E1It, fullTriangle);
+		
 		/*
-		slice? = P0[domAxis] + i + 1/2(why 1/2? wouldn't this mean floating point arithmetic?)
-		std::list<glm::ivec3> E0_slice = GetSubSequence(E0, slice)
-		std::list<glm::ivec3> E1_slice = GetSubSequence(E1, slice)
-		while (E0_slice != NULL || E1_slice != NULL)
+		while (*E0It != NULL && *E1It != NULL)
 		{
-			startP = GetNextInSlice(E0_slice)
-			stopP = GetNextInSlice(E1_slice)
-			ILV(startP, stopP)
+			if (lineCondition(*std::next(E0It, 1), domAxis, 
 		}
 		*/
 		
 	}
+}
+
+/*
+	helper function to fillInterior() that gives subsequence of edge by the dominant axis
+
+	std::list<glm::ivec3> edge - the triangle edge we are splicing
+	axis w - the dominant axis
+	int compare - what w-level we are comparing it to
+
+	NTS: needs optimized so we only traverse the original edge once, probably need to use iterators
+*/
+std::list<glm::ivec3> getSubSequence(std::list<glm::ivec3> edge, axis w, int compare)
+{
+	std::list<glm::ivec3> subsequence;
+	for (const auto& point : edge)
+	{
+		if (point[w] == compare)
+			subsequence.push_back(point);
+	}
+		
+}
+/*
+	helper function to fillInterior() that determines which endpoints to draw lines at
+	if the condition is true, then we can try the next point in the list
+
+	glm::ivec3 point - the potential endpoint
+	axis w - the dominant axis
+	int dU, dV - the respective distances along the non-dominant axis of the last drawn line
+	int U, V - the non-dominant axis coordinates of the last point on the edge we are testing on
+*/
+bool lineCondition(glm::ivec3 point, axis w, int dU, int dV, int U, int V)
+{
+	int m = dV * U - dU * V;
+	int n = abs(dU) + abs(dV);
+	
+	int u, v;
+	
+	if (w == 0)
+	{
+		u = point.y;
+		v = point.z;
+	}
+	else if (w == 1)
+	{
+		u = point.z;
+		v = point.x;
+	}
+	else if (w == 2)
+	{
+		u = point.x;
+		v = point.y;
+	}
+	int compare = dV * u - dU * v;
+	return (m - n <= compare && compare <= m + n);
+	
 }
 
 /*
