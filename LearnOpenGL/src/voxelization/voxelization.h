@@ -205,34 +205,38 @@ void fillInterior(std::list<glm::ivec3> E0,
 {
 	std::list<glm::ivec3> fullTriangle;
 
+	std::list<glm::ivec3>::iterator itE0 = E0.begin();
+	std::list<glm::ivec3>::iterator itE1 = E1.begin();
+
 	//splices triangle into 2D splices based on the dominant axis
 	for (uint8_t i = 0; i < P2[domAxis] - P0[domAxis]; i++)
 	{
 		int slice = P0[domAxis] + i;
-		std::list<glm::ivec3> sliceE0 = getSubSequence(E0, domAxis, slice);
-		std::list<glm::ivec3> sliceE1 = getSubSequence(E1, domAxis, slice);
 
-		auto E0It = sliceE0.begin();
+
+		std::list<glm::ivec3> sliceE0 = getSubSequence(itE0, domAxis, slice);
+		std::list<glm::ivec3> sliceE1 = getSubSequence(itE1, domAxis, slice);
+
+		std::list<glm::ivec3>::iterator itSliceE0 = sliceE0.begin();
+		std::list<glm::ivec3>::iterator itSliceE1 = sliceE1.begin();
 		
-		auto E1It = sliceE1.begin();
-		
-		ILV(*E0It, *E1It, fullTriangle);
+		ILV(*itSliceE0, *itSliceE1, fullTriangle);
 		
 		
-		while (&E0It != NULL && &E1It != NULL)
+		while (&itSliceE0 != NULL && &itSliceE1 != NULL)
 		{
-			if (lineCondition(*std::next(E0It, 1), domAxis, 0, 0, 0, 0))
-				std::advance(E0It, 1);
-			else if (lineCondition(*std::next(E1It, 1), domAxis, 0, 0, 0, 0))
-				std::advance(E1It, 1);
+			if (lineCondition(*std::next(itSliceE0, 1), domAxis, 0, 0, 0, 0))
+				std::advance(itSliceE0, 1);
+			else if (lineCondition(*std::next(itSliceE1, 1), domAxis, 0, 0, 0, 0))
+				std::advance(itSliceE1, 1);
 			else
-				ILV(*E0It, *E1It, fullTriangle);
+				ILV(*itSliceE0, *itSliceE1, fullTriangle);
 		}
 		
-		while (E1It != sliceE1.end())
+		while (itSliceE1 != sliceE1.end())
 		{
-			ILV(*sliceE1.end(), *E1It, fullTriangle);
-			std::advance(E1It, 1);
+			ILV(*sliceE1.end(), *itSliceE1, fullTriangle);
+			std::advance(itSliceE1, 1);
 		}
 	}
 
@@ -245,21 +249,42 @@ void fillInterior(std::list<glm::ivec3> E0,
 /*
 	helper function to fillInterior() that gives subsequence of edge by the dominant axis
 
-	std::list<glm::ivec3> edge - the triangle edge we are splicing
+	std::list<glm::ivec3>::iterator it - an iterator over one of the triangle edges
 	axis w - the dominant axis
 	int compare - what w-level we are comparing it to
-
-	NTS: needs optimized so we only traverse the original edge once, probably need to use iterators
 */
-std::list<glm::ivec3> getSubSequence(std::list<glm::ivec3> edge, axis w, int compare)
+std::list<glm::ivec3> getSubSequence(std::list<glm::ivec3>::iterator it, axis w, int compare)
 {
 	std::list<glm::ivec3> subsequence;
-	for (const auto& point : edge)
+	//not happy with this, it's not very clean
+	if (w == 0) //dom axis = x
 	{
-		if (point[w] == compare)
-			subsequence.push_back(point);
+		while (it->x == compare)
+		{
+			subsequence.push_back(*it);
+			std::advance(it, 1);
+		}
 	}
-		
+	if (w == 1) //dom axis = y
+	{
+		while (it->y == compare)
+		{
+			subsequence.push_back(*it);
+			std::advance(it, 1);
+		}
+	}
+	if (w == 2) //dom axis = z
+	{
+		while (it->z == compare)
+		{
+			subsequence.push_back(*it);
+			std::advance(it, 1);
+		}
+	}
+	else
+		throw std::invalid_argument("Axis w must be 0, 1, or 2");
+
+	return subsequence;
 }
 
 /*
