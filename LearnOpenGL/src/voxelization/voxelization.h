@@ -197,7 +197,7 @@ void ILV(glm::ivec3 P0, glm::ivec3 P1, std::list<glm::ivec3> list)
 	glm::ivec3 P0, P2 - the two points connected directly by E1
 	axis domAxis - the dominant axis of the triangle
 */
-void fllInterior(std::list<glm::ivec3> E0, 
+void fillInterior(std::list<glm::ivec3> E0, 
 				 std::list<glm::ivec3> E1, 
 				 glm::ivec3 P0, 
 				 glm::ivec3 P2, 
@@ -218,13 +218,22 @@ void fllInterior(std::list<glm::ivec3> E0,
 		
 		ILV(*E0It, *E1It, fullTriangle);
 		
-		/*
-		while (*E0It != NULL && *E1It != NULL)
-		{
-			if (lineCondition(*std::next(E0It, 1), domAxis, 
-		}
-		*/
 		
+		while (&E0It != NULL && &E1It != NULL)
+		{
+			if (lineCondition(*std::next(E0It, 1), domAxis, 0, 0, 0, 0))
+				std::advance(E0It, 1);
+			else if (lineCondition(*std::next(E1It, 1), domAxis, 0, 0, 0, 0))
+				std::advance(E1It, 1);
+			else
+				ILV(*E0It, *E1It, fullTriangle);
+		}
+		
+		while (E1It != sliceE1.end())
+		{
+			ILV(*sliceE1.end(), *E1It, fullTriangle);
+			std::advance(E1It, 1);
+		}
 	}
 
 	/*
