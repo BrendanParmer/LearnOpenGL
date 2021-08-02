@@ -209,10 +209,9 @@ void fillInterior(std::list<glm::ivec3> E0,
 	std::list<glm::ivec3>::iterator itE1 = E1.begin();
 
 	//splices triangle into 2D splices based on the dominant axis
-	for (uint8_t i = 0; i < P2[domAxis] - P0[domAxis]; i++)
+	for (uint16_t i = 0; i < P2[domAxis] - P0[domAxis]; i++)
 	{
 		int slice = P0[domAxis] + i;
-
 
 		std::list<glm::ivec3> sliceE0 = getSubSequence(itE0, domAxis, slice);
 		std::list<glm::ivec3> sliceE1 = getSubSequence(itE1, domAxis, slice);
@@ -223,7 +222,7 @@ void fillInterior(std::list<glm::ivec3> E0,
 		ILV(*itSliceE0, *itSliceE1, fullTriangle);
 		
 		
-		while (&itSliceE0 != NULL && &itSliceE1 != NULL)
+		while (itSliceE0 != sliceE0.end() && itSliceE1 != sliceE1.end())
 		{
 			if (lineCondition(*std::next(itSliceE0, 1), domAxis, 0, 0, 0, 0))
 				std::advance(itSliceE0, 1);
@@ -232,12 +231,10 @@ void fillInterior(std::list<glm::ivec3> E0,
 			else
 				ILV(*itSliceE0, *itSliceE1, fullTriangle);
 		}
+
+		ILV(*sliceE0.end(), *sliceE1.end(), fullTriangle);
 		
-		while (itSliceE1 != sliceE1.end())
-		{
-			ILV(*sliceE1.end(), *itSliceE1, fullTriangle);
-			std::advance(itSliceE1, 1);
-		}
+		
 	}
 
 	/*
