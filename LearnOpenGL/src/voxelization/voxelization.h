@@ -61,7 +61,9 @@ void addVoxelToOctree(glm::ivec3 P, uint8_t depth, Octnode root);
 
 int smallIntPow(int x, uint8_t p); //from math.h
 
-
+//variables
+uint8_t depth = 8;
+Octnode* root = new Octnode(glm::ivec3(0, 0, 0), NULL);
 
 
 
@@ -186,6 +188,38 @@ void ILV(glm::ivec3 P0, glm::ivec3 P1, std::list<glm::ivec3> list)
 }
 
 /*
+	version of ILV function that adds points directly to an octree rather than a list
+
+	glm::ivec3 P0, P1 - voxelized endpoints of the line
+	Octnode root - root of the main octree
+*/
+void ILV(glm::ivec3 P0, glm::ivec3 P1, Octnode root)
+{
+	glm::ivec3 dP = glm::ivec3(P1.x - P0.x,
+		P1.y - P0.y,
+		P1.z - P0.z);
+	glm::ivec3 M = glm::ivec3(abs(dP.y * dP.z),
+		abs(dP.x * dP.z),
+		abs(dP.x * dP.y));
+	glm::ivec3 L = M;
+	glm::ivec3 currentP = P0;
+	while (currentP != P1)
+	{
+		//find axis with minimum distance to next voxel region face
+		unsigned int min = 0;
+		for (int i = 1; i < 3; i++) //worth it to even have a for loop?
+		{
+			if (L[i] > L[min])
+				min = i;
+		}
+		currentP[min] += dP[min];
+		L -= glm::ivec3(L[min], L[min], L[min]);
+		L[min] = 2 * M[min];
+		addVoxelToOctree(currentP, depth, root);
+	}
+}
+
+/*
 	function to fill the interior of the triangle
 
 	it splices the triangle by the dominant axis, creating a bunch of 2D polygons
@@ -203,8 +237,6 @@ void fillInterior(std::list<glm::ivec3> E0,
 				 glm::ivec3 P2, 
 				 axis domAxis)
 {
-	std::list<glm::ivec3> fullTriangle;
-
 	std::list<glm::ivec3>::iterator itE0 = E0.begin();
 	std::list<glm::ivec3>::iterator itE1 = E1.begin();
 
@@ -219,7 +251,7 @@ void fillInterior(std::list<glm::ivec3> E0,
 		std::list<glm::ivec3>::iterator itSliceE0 = sliceE0.begin();
 		std::list<glm::ivec3>::iterator itSliceE1 = sliceE1.begin();
 		
-		ILV(*itSliceE0, *itSliceE1, fullTriangle);
+		ILV(*itSliceE0, *itSliceE1, *root);
 		
 		
 		while (itSliceE0 != sliceE0.end() && itSliceE1 != sliceE1.end())
@@ -229,18 +261,11 @@ void fillInterior(std::list<glm::ivec3> E0,
 			else if (lineCondition(*std::next(itSliceE1, 1), domAxis, 0, 0, 0, 0))
 				std::advance(itSliceE1, 1);
 			else
-				ILV(*itSliceE0, *itSliceE1, fullTriangle);
+				ILV(*itSliceE0, *itSliceE1, *root);
 		}
 
-		ILV(*sliceE0.end(), *sliceE1.end(), fullTriangle);
-		
-		
+		ILV(*sliceE0.end(), *sliceE1.end(), *root);
 	}
-
-	/*
-		for x in fullTriangle: //might wanna make separate ILV functions for adding to list and to Octree
-			addVoxelToOctree(x, depth, root);
-	*/
 }
 
 /*
