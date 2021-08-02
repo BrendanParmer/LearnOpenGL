@@ -88,9 +88,18 @@ void voxelizeTriangle(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2)
 	ILV(P0, P2, E1);
 	ILV(P1, P2, E2);
 
+	for (glm::ivec3 x : E0)
+	{
+		addVoxelToOctree(x, depth, *root);
+	}
+	for (glm::ivec3 x : E1)
+	{
+		addVoxelToOctree(x, depth, *root);
+	}
 	//creates hybrid edge
 	for (glm::ivec3 x : E2)
 	{
+		addVoxelToOctree(x, depth, *root);
 		E0.push_back(x);
 	}
 	fillInterior(E0, E1, P0, P2, domAxis);
@@ -252,7 +261,6 @@ void fillInterior(std::list<glm::ivec3> E0,
 		std::list<glm::ivec3>::iterator itSliceE1 = sliceE1.begin();
 		
 		ILV(*itSliceE0, *itSliceE1, *root);
-		
 		
 		while (itSliceE0 != sliceE0.end() && itSliceE1 != sliceE1.end())
 		{
